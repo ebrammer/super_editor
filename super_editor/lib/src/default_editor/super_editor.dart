@@ -485,6 +485,18 @@ class SuperEditorState extends State<SuperEditor> {
           "No DocumentComposer is available to SuperEditor. The Editor given to SuperEditor must contain a MutableDocumentComposer in the set of Editables.");
     }
 
+    // Initialize controllers with custom toolbar builders if deprecated builders are provided
+    _iosControlsController = SuperEditorIosControlsController(
+      toolbarBuilder: widget.iOSToolbarBuilder != null
+          ? (context, key, focalPoint) => widget.iOSToolbarBuilder!(context)
+          : null,
+    );
+    _androidControlsController = SuperEditorAndroidControlsController(
+      toolbarBuilder: widget.androidToolbarBuilder != null
+          ? (context, key, focalPoint) => widget.androidToolbarBuilder!(context)
+          : null,
+    );
+
     _focusNode = (widget.focusNode ?? FocusNode())..addListener(_onFocusChange);
 
     _composer = widget.editor.composer;
