@@ -1053,12 +1053,20 @@ class DefaultIosEditorToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selection = editorOps.composer.selection;
+    final isSelectionCollapsed = selection == null || selection.isCollapsed;
+    
     return IOSTextEditingFloatingToolbar(
       floatingToolbarKey: floatingToolbarKey,
       focalPoint: focalPoint,
-      onCutPressed: _cut,
-      onCopyPressed: _copy,
+      onCutPressed: !isSelectionCollapsed ? _cut : null,
+      onCopyPressed: !isSelectionCollapsed ? _copy : null,
       onPastePressed: _paste,
+      onDeletePressed: !isSelectionCollapsed ? _delete : null,
+      onSharePressed: null, // Requires app-specific implementation
+      onSelectPressed: isSelectionCollapsed ? _selectWord : null,
+      onSelectAllPressed: isSelectionCollapsed ? _selectAll : null,
+      isSelectionCollapsed: isSelectionCollapsed,
     );
   }
 
@@ -1074,6 +1082,26 @@ class DefaultIosEditorToolbar extends StatelessWidget {
 
   void _paste() {
     editorOps.paste();
+    editorControlsController.hideToolbar();
+  }
+  
+  void _delete() {
+    editorOps.deleteSelection(TextAffinity.downstream);
+    editorControlsController.hideToolbar();
+  }
+  
+  void _selectAll() {
+    editorOps.selectAll();
+    editorControlsController.hideToolbar();
+  }
+  
+  void _selectWord() {
+    // Basic word selection - can be enhanced
+    final selection = editorOps.composer.selection;
+    if (selection == null || !selection.isCollapsed) return;
+    
+    // For now, just select all - can be enhanced with word boundary detection
+    editorOps.selectAll();
     editorControlsController.hideToolbar();
   }
 }
@@ -1118,17 +1146,19 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: selectionNotifier,
       builder: (context, selection, child) {
+        final isSelectionCollapsed = selection == null || selection.isCollapsed;
+        
         return AndroidTextEditingFloatingToolbar(
           floatingToolbarKey: floatingToolbarKey,
           focalPoint: focalPoint,
-          onCopyPressed: selection == null || !selection.isCollapsed //
-              ? _copy
-              : null,
-          onCutPressed: selection == null || !selection.isCollapsed //
-              ? _cut
-              : null,
+          onCopyPressed: !isSelectionCollapsed ? _copy : null,
+          onCutPressed: !isSelectionCollapsed ? _cut : null,
           onPastePressed: _paste,
-          onSelectAllPressed: _selectAll,
+          onSelectAllPressed: isSelectionCollapsed ? _selectAll : null,
+          onDeletePressed: !isSelectionCollapsed ? _delete : null,
+          onSharePressed: null, // Requires app-specific implementation
+          onSelectPressed: isSelectionCollapsed ? _selectWord : null,
+          isSelectionCollapsed: isSelectionCollapsed,
         );
       },
     );
@@ -1151,6 +1181,22 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
 
   void _selectAll() {
     editorOps.selectAll();
+    editorControlsController.hideToolbar();
+  }
+  
+  void _delete() {
+    editorOps.deleteSelection(TextAffinity.downstream);
+    editorControlsController.hideToolbar();
+  }
+  
+  void _selectWord() {
+    // Basic word selection - can be enhanced
+    final selection = editorOps.composer.selection;
+    if (selection == null || !selection.isCollapsed) return;
+    
+    // For now, just select all - can be enhanced with word boundary detection
+    editorOps.selectAll();
+    editorControlsController.hideToolbar();
   }
 }
 

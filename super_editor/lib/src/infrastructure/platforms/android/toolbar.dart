@@ -2,6 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:follow_the_leader/follow_the_leader.dart';
 import 'package:super_editor/src/infrastructure/flutter/android_toolbar.dart';
 
+/// Steadfast Faith design system colors (hard-coded to match app theme)
+class _SteadfastColors {
+  // Light theme
+  static const Color lightSurface = Color(0xFFFAFAFA); // neutral50
+  static const Color lightTextSecondary = Color(0xFF525252); // neutral600
+  static const Color lightBorderSubtle = Color(0xFFE5E5E5); // neutral200
+  static const Color lightDestructive = Color(0xFFEF4444); // red500
+
+  // Dark theme
+  static const Color darkSurface = Color(0xFF0F172A); // slate900
+  static const Color darkTextSecondary = Color(0xFF94A3B8); // slate400
+  static const Color darkBorderSubtle = Color(0xFF1E293B); // slate800
+  static const Color darkDestructive = Color(0xFFEF4444); // red500
+}
+
 class AndroidTextEditingFloatingToolbar extends StatefulWidget {
   const AndroidTextEditingFloatingToolbar({
     Key? key,
@@ -11,6 +26,10 @@ class AndroidTextEditingFloatingToolbar extends StatefulWidget {
     this.onCopyPressed,
     this.onPastePressed,
     this.onSelectAllPressed,
+    this.onDeletePressed,
+    this.onSharePressed,
+    this.onSelectPressed,
+    this.isSelectionCollapsed = false,
   }) : super(key: key);
 
   final Key? floatingToolbarKey;
@@ -20,6 +39,14 @@ class AndroidTextEditingFloatingToolbar extends StatefulWidget {
   final VoidCallback? onCopyPressed;
   final VoidCallback? onPastePressed;
   final VoidCallback? onSelectAllPressed;
+  
+  // Steadfast Faith custom actions
+  final VoidCallback? onDeletePressed;
+  final VoidCallback? onSharePressed;
+  final VoidCallback? onSelectPressed;
+  
+  /// Whether the selection is collapsed (cursor only) vs expanded (text selected)
+  final bool isSelectionCollapsed;
 
   @override
   State<AndroidTextEditingFloatingToolbar> createState() => _AndroidTextEditingFloatingToolbarState();
@@ -77,28 +104,69 @@ class _AndroidTextEditingFloatingToolbarState extends State<AndroidTextEditingFl
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    final buttons = <_ButtonViewModel>[
-      if (widget.onCutPressed != null)
-        _ButtonViewModel(
+    final isDark = brightness == Brightness.dark;
+    
+    // Build all buttons based on selection state
+    final buttons = <_ButtonViewModel>[];
+    
+    // Selection-based actions (only when text is selected)
+    if (!widget.isSelectionCollapsed) {
+      if (widget.onCutPressed != null) {
+        buttons.add(_ButtonViewModel(
           onPressed: widget.onCutPressed!,
           title: 'Cut',
-        ),
-      if (widget.onCopyPressed != null)
-        _ButtonViewModel(
+          isDestructive: false,
+        ));
+      }
+      if (widget.onCopyPressed != null) {
+        buttons.add(_ButtonViewModel(
           onPressed: widget.onCopyPressed!,
           title: 'Copy',
-        ),
-      if (widget.onPastePressed != null)
-        _ButtonViewModel(
-          onPressed: widget.onPastePressed!,
-          title: 'Paste',
-        ),
-      if (widget.onSelectAllPressed != null)
-        _ButtonViewModel(
+          isDestructive: false,
+        ));
+      }
+      if (widget.onDeletePressed != null) {
+        buttons.add(_ButtonViewModel(
+          onPressed: widget.onDeletePressed!,
+          title: 'Delete',
+          isDestructive: true,
+        ));
+      }
+      if (widget.onSharePressed != null) {
+        buttons.add(_ButtonViewModel(
+          onPressed: widget.onSharePressed!,
+          title: 'Share',
+          isDestructive: false,
+        ));
+      }
+    }
+    
+    // Always available actions
+    if (widget.onPastePressed != null) {
+      buttons.add(_ButtonViewModel(
+        onPressed: widget.onPastePressed!,
+        title: 'Paste',
+        isDestructive: false,
+      ));
+    }
+    
+    // Cursor-based actions (only when cursor is collapsed)
+    if (widget.isSelectionCollapsed) {
+      if (widget.onSelectPressed != null) {
+        buttons.add(_ButtonViewModel(
+          onPressed: widget.onSelectPressed!,
+          title: 'Select',
+          isDestructive: false,
+        ));
+      }
+      if (widget.onSelectAllPressed != null) {
+        buttons.add(_ButtonViewModel(
           onPressed: widget.onSelectAllPressed!,
           title: 'Select All',
-        ),
-    ];
+          isDestructive: false,
+        ));
+      }
+    }
 
     return Theme(
       data: ThemeData(
@@ -110,19 +178,87 @@ class _AndroidTextEditingFloatingToolbarState extends State<AndroidTextEditingFl
         key: widget.floatingToolbarKey,
         child: AndroidPopoverToolbar(
           isAbove: _isAbove,
-          toolbarBuilder: _defaultToolbarBuilder,
-          children: [
-            for (int i = 0; i < buttons.length; i++)
-              TextSelectionToolbarTextButton(
-                padding: TextSelectionToolbarTextButton.getPadding(i, buttons.length),
-                onPressed: buttons[i].onPressed,
-                alignment: AlignmentDirectional.center,
-                child: Text(buttons[i].title),
-              ),
-          ],
+          toolbarBuilder: (context, child) => _buildSteadfastToolbar(context, child, isDark),
+          children: _buildButtonRow(buttons, isDark),
         ),
       ),
     );
+  }
+  
+  /// Build toolbar container with Steadfast Faith styling
+  Widget _buildSteadfastToolbar(BuildContext context, Widget child, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: isDark ? _SteadfastColors.darkSurface : _SteadfastColors.lightSurface,
+        borderRadius: BorderRadius.circular(999.0), // Fully rounded (pill)
+        border: Border.all(
+          color: isDark ? _SteadfastColors.darkBorderSubtle : _SteadfastColors.lightBorderSubtle,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+  
+  /// Build button row with dividers between buttons
+  List<Widget> _buildButtonRow(List<_ButtonViewModel> buttons, bool isDark) {
+    if (buttons.isEmpty) return [];
+    
+    final rowChildren = <Widget>[];
+    
+    for (int i = 0; i < buttons.length; i++) {
+      if (i > 0) {
+        // Add divider between buttons
+        rowChildren.add(
+          Container(
+            width: 1,
+            height: 24,
+            color: isDark ? _SteadfastColors.darkBorderSubtle : _SteadfastColors.lightBorderSubtle,
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+          ),
+        );
+      }
+      
+      // Build button with Steadfast Faith styling
+      final button = buttons[i];
+      final textColor = button.isDestructive
+          ? _SteadfastColors.lightDestructive // red500 for destructive
+          : (isDark ? _SteadfastColors.darkTextSecondary : _SteadfastColors.lightTextSecondary);
+      
+      rowChildren.add(
+        TextButton(
+          onPressed: button.onPressed,
+          style: TextButton.styleFrom(
+            minimumSize: const Size(kMinInteractiveDimension, 0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Space.x8, Space.x6
+            backgroundColor: isDark ? _SteadfastColors.darkSurface : _SteadfastColors.lightSurface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0), // Radius.md
+            ),
+            splashFactory: NoSplash.splashFactory,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(
+            button.title,
+            style: TextStyle(
+              fontSize: 14, // Match ButtonTertiary text size
+              fontWeight: FontWeight.normal,
+              color: textColor,
+            ),
+          ),
+        ),
+      );
+    }
+    
+    return rowChildren;
   }
 }
 
@@ -134,8 +270,10 @@ class _ButtonViewModel {
   _ButtonViewModel({
     required this.title,
     required this.onPressed,
+    this.isDestructive = false,
   });
 
   final String title;
   final VoidCallback onPressed;
+  final bool isDestructive;
 }
