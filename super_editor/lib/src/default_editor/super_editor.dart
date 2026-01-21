@@ -1045,6 +1045,7 @@ Widget iOSSystemPopoverEditorToolbarWithFallbackBuilder(
 }
 
 /// Builds a standard editor-style iOS floating toolbar.
+/// DISABLED - Apps must provide custom toolbar via deprecated builders
 Widget defaultIosEditorToolbarBuilder(
   BuildContext context,
   Key floatingToolbarKey,
@@ -1053,6 +1054,10 @@ Widget defaultIosEditorToolbarBuilder(
   SuperEditorIosControlsController editorControlsController, {
   VoidCallback? onSharePressed,
 }) {
+  // DISABLED - Return empty, apps must provide custom toolbar
+  return const SizedBox.shrink();
+  
+  /* DISABLED - Default toolbar removed
   if (CurrentPlatform.isWeb) {
     // On web, we defer to the browser's internal overlay controls for mobile.
     return const SizedBox();
@@ -1065,6 +1070,7 @@ Widget defaultIosEditorToolbarBuilder(
     editorControlsController: editorControlsController,
     onSharePressed: onSharePressed,
   );
+  */
 }
 
 /// An iOS floating toolbar, which includes standard buttons for an editor use-case.
@@ -1203,6 +1209,7 @@ class DefaultIosEditorToolbar extends StatelessWidget {
 }
 
 /// Builds a standard editor-style Android floating toolbar.
+/// DISABLED - Apps must provide custom toolbar via deprecated builders
 Widget defaultAndroidEditorToolbarBuilder(
   BuildContext context,
   Key floatingToolbarKey,
@@ -1211,6 +1218,10 @@ Widget defaultAndroidEditorToolbarBuilder(
   ValueListenable<DocumentSelection?> selectionNotifier,
   LeaderLink focalPoint,
 ) {
+  // DISABLED - Return empty, apps must provide custom toolbar
+  return const SizedBox.shrink();
+  
+  /* DISABLED - Default toolbar removed
   return DefaultAndroidEditorToolbar(
     floatingToolbarKey: floatingToolbarKey,
     focalPoint: focalPoint,
@@ -1218,6 +1229,7 @@ Widget defaultAndroidEditorToolbarBuilder(
     editorControlsController: editorControlsController,
     selectionNotifier: selectionNotifier,
   );
+  */
 }
 
 /// An Android floating toolbar, which includes standard buttons for an editor use-case.
