@@ -32,6 +32,28 @@ import 'package:super_editor/src/infrastructure/platforms/android/toolbar.dart';
 import 'package:super_editor/src/infrastructure/platforms/ios/toolbar.dart';
 import 'package:super_editor/src/infrastructure/platforms/mac/mac_ime.dart';
 import 'package:super_editor/src/infrastructure/platforms/platform.dart';
+import 'package:super_editor/src/infrastructure/render_sliver_ext.dart';
+import 'package:super_editor/src/infrastructure/signal_notifier.dart';
+import 'package:super_editor/src/infrastructure/text_input.dart';
+import 'package:super_editor/src/undo_redo.dart';
+import 'package:super_text_layout/super_text_layout.dart';
+
+import '../infrastructure/document_gestures_interaction_overrides.dart';
+import '../infrastructure/platforms/ios/ios_system_context_menu.dart';
+import '../infrastructure/platforms/mobile_documents.dart';
+import 'attributions.dart';
+import 'blockquote.dart';
+import 'document_caret_overlay.dart';
+import 'document_focus_and_selection_policies.dart';
+import 'document_gestures_mouse.dart';
+import 'document_hardware_keyboard/document_input_keyboard.dart';
+import 'document_ime/document_input_ime.dart';
+import 'horizontal_rule.dart';
+import 'image.dart';
+import 'layout_single_column/layout_single_column.dart';
+import 'paragraph.dart';
+import 'text.dart';
+import 'unknown_component.dart';
 
 /// Global callback for Share action - apps can set this to provide their own Share implementation
 /// This allows the fork to call Share without importing app-specific code
@@ -57,28 +79,6 @@ class SuperEditorShareRegistry {
   
   static ShareTextCallback? get shareCallback => _shareCallback;
 }
-import 'package:super_editor/src/infrastructure/render_sliver_ext.dart';
-import 'package:super_editor/src/infrastructure/signal_notifier.dart';
-import 'package:super_editor/src/infrastructure/text_input.dart';
-import 'package:super_editor/src/undo_redo.dart';
-import 'package:super_text_layout/super_text_layout.dart';
-
-import '../infrastructure/document_gestures_interaction_overrides.dart';
-import '../infrastructure/platforms/ios/ios_system_context_menu.dart';
-import '../infrastructure/platforms/mobile_documents.dart';
-import 'attributions.dart';
-import 'blockquote.dart';
-import 'document_caret_overlay.dart';
-import 'document_focus_and_selection_policies.dart';
-import 'document_gestures_mouse.dart';
-import 'document_hardware_keyboard/document_input_keyboard.dart';
-import 'document_ime/document_input_ime.dart';
-import 'horizontal_rule.dart';
-import 'image.dart';
-import 'layout_single_column/layout_single_column.dart';
-import 'paragraph.dart';
-import 'text.dart';
-import 'unknown_component.dart';
 
 /// A rich text editor that displays a document in a single-column layout.
 ///
