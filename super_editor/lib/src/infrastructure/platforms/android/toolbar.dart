@@ -171,6 +171,9 @@ class _AndroidTextEditingFloatingToolbarState extends State<AndroidTextEditingFl
       }
     }
 
+    // Build simple horizontal row with all buttons (no pagination/arrows)
+    final buttonWidgets = _buildButtonRow(buttons, isDark);
+    
     return Theme(
       data: ThemeData(
         colorScheme: brightness == Brightness.light //
@@ -179,10 +182,16 @@ class _AndroidTextEditingFloatingToolbarState extends State<AndroidTextEditingFl
       ),
       child: KeyedSubtree(
         key: widget.floatingToolbarKey,
-        child: AndroidPopoverToolbar(
-          isAbove: _isAbove,
-          toolbarBuilder: (context, child) => _buildSteadfastToolbar(context, child, isDark),
-          children: _buildButtonRow(buttons, isDark),
+        child: _buildSteadfastToolbar(
+          context,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: buttonWidgets,
+            ),
+          ),
+          isDark,
         ),
       ),
     );

@@ -130,7 +130,8 @@ class IOSTextEditingFloatingToolbar extends StatelessWidget {
       }
     }
 
-    // Use CupertinoPopoverToolbar for iOS positioning, but with Steadfast Faith styling
+    // Build simple horizontal row with all buttons (no pagination/arrows)
+    // Use CupertinoPopoverToolbar for positioning, but wrap buttons in a scrollable row
     return Theme(
       data: ThemeData(
         colorScheme: brightness == Brightness.light //
@@ -144,7 +145,16 @@ class IOSTextEditingFloatingToolbar extends StatelessWidget {
         backgroundColor: isDark ? _SteadfastColors.darkSurface : _SteadfastColors.lightSurface,
         activeButtonTextColor: isDark ? _SteadfastColors.darkTextSecondary : _SteadfastColors.lightTextSecondary,
         inactiveButtonTextColor: isDark ? _SteadfastColors.darkTextSecondary : _SteadfastColors.lightTextSecondary,
-        children: buttons, // No dividers
+        children: [
+          // Wrap in SingleChildScrollView to allow horizontal scrolling without pagination arrows
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: buttons,
+            ),
+          ),
+        ],
       ),
     );
   }
