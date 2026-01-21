@@ -904,8 +904,14 @@ class SuperEditorState extends State<SuperEditor> {
         return SuperEditorIosToolbarOverlayManager(
           tapRegionGroupId: widget.tapRegionGroupId,
           defaultToolbarBuilder: widget.iOSToolbarBuilder != null
-              ? (overlayContext, mobileToolbarKey, focalPoint) => widget.iOSToolbarBuilder!(overlayContext)
-              : (overlayContext, mobileToolbarKey, focalPoint) => const SizedBox.shrink(), // Disabled - apps must provide custom toolbar
+              ? (overlayContext, mobileToolbarKey, focalPoint) {
+                  print('FORK: defaultToolbarBuilder called with deprecated builder');
+                  return widget.iOSToolbarBuilder!(overlayContext);
+                }
+              : (overlayContext, mobileToolbarKey, focalPoint) {
+                  print('FORK: defaultToolbarBuilder called - no deprecated builder, returning empty');
+                  return const SizedBox.shrink(); // Disabled - apps must provide custom toolbar
+                },
           child: SuperEditorIosMagnifierOverlayManager(
             child: EditorFloatingCursor(
               editor: widget.editor,
