@@ -1068,7 +1068,7 @@ class DefaultIosEditorToolbar extends StatelessWidget {
       onCopyPressed: !isSelectionCollapsed ? _copy : null,
       onPastePressed: _paste,
       onDeletePressed: !isSelectionCollapsed ? _delete : null,
-      onSharePressed: null, // Requires app-specific implementation
+      onSharePressed: null, // Apps can provide Share via custom toolbar builder
       onSelectPressed: isSelectionCollapsed ? _selectWord : null,
       onSelectAllPressed: isSelectionCollapsed ? _selectAll : null,
       isSelectionCollapsed: isSelectionCollapsed,
@@ -1161,7 +1161,7 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
           onPastePressed: _paste,
           onSelectAllPressed: isSelectionCollapsed ? _selectAll : null,
           onDeletePressed: !isSelectionCollapsed ? _delete : null,
-          onSharePressed: null, // Requires app-specific implementation
+          onSharePressed: null, // Apps can provide Share via custom toolbar builder
           onSelectPressed: isSelectionCollapsed ? _selectWord : null,
           isSelectionCollapsed: isSelectionCollapsed,
         );

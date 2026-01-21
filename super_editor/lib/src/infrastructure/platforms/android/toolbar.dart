@@ -109,8 +109,8 @@ class _AndroidTextEditingFloatingToolbarState extends State<AndroidTextEditingFl
     // Build all buttons based on selection state
     final buttons = <_ButtonViewModel>[];
     
-    // Selection-based actions (only when text is selected)
     if (!widget.isSelectionCollapsed) {
+      // Text selected: Cut, Copy, Paste, Share, Delete
       if (widget.onCutPressed != null) {
         buttons.add(_ButtonViewModel(
           onPressed: widget.onCutPressed!,
@@ -125,11 +125,11 @@ class _AndroidTextEditingFloatingToolbarState extends State<AndroidTextEditingFl
           isDestructive: false,
         ));
       }
-      if (widget.onDeletePressed != null) {
+      if (widget.onPastePressed != null) {
         buttons.add(_ButtonViewModel(
-          onPressed: widget.onDeletePressed!,
-          title: 'Delete',
-          isDestructive: true,
+          onPressed: widget.onPastePressed!,
+          title: 'Paste',
+          isDestructive: false,
         ));
       }
       if (widget.onSharePressed != null) {
@@ -139,19 +139,22 @@ class _AndroidTextEditingFloatingToolbarState extends State<AndroidTextEditingFl
           isDestructive: false,
         ));
       }
-    }
-    
-    // Always available actions
-    if (widget.onPastePressed != null) {
-      buttons.add(_ButtonViewModel(
-        onPressed: widget.onPastePressed!,
-        title: 'Paste',
-        isDestructive: false,
-      ));
-    }
-    
-    // Cursor-based actions (only when cursor is collapsed)
-    if (widget.isSelectionCollapsed) {
+      if (widget.onDeletePressed != null) {
+        buttons.add(_ButtonViewModel(
+          onPressed: widget.onDeletePressed!,
+          title: 'Delete',
+          isDestructive: true,
+        ));
+      }
+    } else {
+      // Cursor only: Paste, Select, Select All
+      if (widget.onPastePressed != null) {
+        buttons.add(_ButtonViewModel(
+          onPressed: widget.onPastePressed!,
+          title: 'Paste',
+          isDestructive: false,
+        ));
+      }
       if (widget.onSelectPressed != null) {
         buttons.add(_ButtonViewModel(
           onPressed: widget.onSelectPressed!,
@@ -196,69 +199,43 @@ class _AndroidTextEditingFloatingToolbarState extends State<AndroidTextEditingFl
           color: isDark ? _SteadfastColors.darkBorderSubtle : _SteadfastColors.lightBorderSubtle,
           width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        // No shadow
       ),
       child: child,
     );
   }
   
-  /// Build button row with dividers between buttons
+  /// Build button row (no dividers)
   List<Widget> _buildButtonRow(List<_ButtonViewModel> buttons, bool isDark) {
     if (buttons.isEmpty) return [];
     
-    final rowChildren = <Widget>[];
-    
-    for (int i = 0; i < buttons.length; i++) {
-      if (i > 0) {
-        // Add divider between buttons
-        rowChildren.add(
-          Container(
-            width: 1,
-            height: 24,
-            color: isDark ? _SteadfastColors.darkBorderSubtle : _SteadfastColors.lightBorderSubtle,
-            margin: const EdgeInsets.symmetric(horizontal: 2),
-          ),
-        );
-      }
-      
-      // Build button with Steadfast Faith styling
-      final button = buttons[i];
+    return buttons.map((button) {
       final textColor = button.isDestructive
           ? _SteadfastColors.lightDestructive // red500 for destructive
           : (isDark ? _SteadfastColors.darkTextSecondary : _SteadfastColors.lightTextSecondary);
       
-      rowChildren.add(
-        TextButton(
-          onPressed: button.onPressed,
-          style: TextButton.styleFrom(
-            minimumSize: const Size(kMinInteractiveDimension, 0),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Space.x8, Space.x6
-            backgroundColor: isDark ? _SteadfastColors.darkSurface : _SteadfastColors.lightSurface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.0), // Radius.md
-            ),
-            splashFactory: NoSplash.splashFactory,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      return TextButton(
+        onPressed: button.onPressed,
+        style: TextButton.styleFrom(
+          minimumSize: const Size(kMinInteractiveDimension, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Space.x8, Space.x6
+          backgroundColor: isDark ? _SteadfastColors.darkSurface : _SteadfastColors.lightSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0), // Radius.md
           ),
-          child: Text(
-            button.title,
-            style: TextStyle(
-              fontSize: 14, // Match ButtonTertiary text size
-              fontWeight: FontWeight.normal,
-              color: textColor,
-            ),
+          splashFactory: NoSplash.splashFactory,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(
+          button.title,
+          style: TextStyle(
+            fontSize: 14, // Match ButtonTertiary text size
+            fontWeight: FontWeight.normal,
+            color: textColor,
           ),
         ),
       );
-    }
-    
-    return rowChildren;
+    }).toList();
   }
 }
 

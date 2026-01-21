@@ -60,8 +60,8 @@ class IOSTextEditingFloatingToolbar extends StatelessWidget {
     // Build all buttons based on selection state
     final buttons = <Widget>[];
     
-    // Selection-based actions (only when text is selected)
     if (!isSelectionCollapsed) {
+      // Text selected: Cut, Copy, Paste, Share, Delete
       if (onCutPressed != null) {
         buttons.add(_buildButton(
           onPressed: onCutPressed!,
@@ -78,11 +78,11 @@ class IOSTextEditingFloatingToolbar extends StatelessWidget {
           isDark: isDark,
         ));
       }
-      if (onDeletePressed != null) {
+      if (onPastePressed != null) {
         buttons.add(_buildButton(
-          onPressed: onDeletePressed!,
-          title: 'Delete',
-          isDestructive: true,
+          onPressed: onPastePressed!,
+          title: 'Paste',
+          isDestructive: false,
           isDark: isDark,
         ));
       }
@@ -94,20 +94,24 @@ class IOSTextEditingFloatingToolbar extends StatelessWidget {
           isDark: isDark,
         ));
       }
-    }
-    
-    // Always available actions
-    if (onPastePressed != null) {
-      buttons.add(_buildButton(
-        onPressed: onPastePressed!,
-        title: 'Paste',
-        isDestructive: false,
-        isDark: isDark,
-      ));
-    }
-    
-    // Cursor-based actions (only when cursor is collapsed)
-    if (isSelectionCollapsed) {
+      if (onDeletePressed != null) {
+        buttons.add(_buildButton(
+          onPressed: onDeletePressed!,
+          title: 'Delete',
+          isDestructive: true,
+          isDark: isDark,
+        ));
+      }
+    } else {
+      // Cursor only: Paste, Select, Select All
+      if (onPastePressed != null) {
+        buttons.add(_buildButton(
+          onPressed: onPastePressed!,
+          title: 'Paste',
+          isDestructive: false,
+          isDark: isDark,
+        ));
+      }
       if (onSelectPressed != null) {
         buttons.add(_buildButton(
           onPressed: onSelectPressed!,
@@ -136,38 +140,15 @@ class IOSTextEditingFloatingToolbar extends StatelessWidget {
       child: CupertinoPopoverToolbar(
         key: floatingToolbarKey,
         focalPoint: LeaderMenuFocalPoint(link: focalPoint),
-        elevation: 8.0,
+        elevation: 0.0, // Remove shadow
         backgroundColor: isDark ? _SteadfastColors.darkSurface : _SteadfastColors.lightSurface,
         activeButtonTextColor: isDark ? _SteadfastColors.darkTextSecondary : _SteadfastColors.lightTextSecondary,
         inactiveButtonTextColor: isDark ? _SteadfastColors.darkTextSecondary : _SteadfastColors.lightTextSecondary,
-        children: _buildButtonRow(buttons, isDark),
+        children: buttons, // No dividers
       ),
     );
   }
   
-  /// Build button row with dividers between buttons
-  List<Widget> _buildButtonRow(List<Widget> buttons, bool isDark) {
-    if (buttons.isEmpty) return [];
-    
-    final rowChildren = <Widget>[];
-    
-    for (var i = 0; i < buttons.length; i++) {
-      if (i > 0) {
-        // Add divider between buttons
-        rowChildren.add(
-          Container(
-            width: 1,
-            height: 24,
-            color: isDark ? _SteadfastColors.darkBorderSubtle : _SteadfastColors.lightBorderSubtle,
-            margin: const EdgeInsets.symmetric(horizontal: 2),
-          ),
-        );
-      }
-      rowChildren.add(buttons[i]);
-    }
-    
-    return rowChildren;
-  }
 
   Widget _buildButton({
     required String title,
