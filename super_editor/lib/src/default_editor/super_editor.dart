@@ -32,6 +32,31 @@ import 'package:super_editor/src/infrastructure/platforms/android/toolbar.dart';
 import 'package:super_editor/src/infrastructure/platforms/ios/toolbar.dart';
 import 'package:super_editor/src/infrastructure/platforms/mac/mac_ime.dart';
 import 'package:super_editor/src/infrastructure/platforms/platform.dart';
+
+/// Global callback for Share action - apps can set this to provide their own Share implementation
+/// This allows the fork to call Share without importing app-specific code
+typedef ShareTextCallback = void Function(BuildContext context, String text);
+
+/// Registry for Share callback - set by app to provide custom Share implementation
+/// 
+/// Usage in app:
+/// ```dart
+/// SuperEditorShareRegistry.setShareCallback((context, text) {
+///   launchShare(context, null, text);
+/// });
+/// ```
+class SuperEditorShareRegistry {
+  SuperEditorShareRegistry._();
+  
+  static ShareTextCallback? _shareCallback;
+  
+  /// Set the Share callback that will be called when Share button is pressed
+  static void setShareCallback(ShareTextCallback? callback) {
+    _shareCallback = callback;
+  }
+  
+  static ShareTextCallback? get shareCallback => _shareCallback;
+}
 import 'package:super_editor/src/infrastructure/render_sliver_ext.dart';
 import 'package:super_editor/src/infrastructure/signal_notifier.dart';
 import 'package:super_editor/src/infrastructure/text_input.dart';
@@ -1026,8 +1051,9 @@ Widget defaultIosEditorToolbarBuilder(
   Key floatingToolbarKey,
   LeaderLink focalPoint,
   CommonEditorOperations editorOps,
-  SuperEditorIosControlsController editorControlsController,
-) {
+  SuperEditorIosControlsController editorControlsController, {
+  VoidCallback? onSharePressed,
+}) {
   if (CurrentPlatform.isWeb) {
     // On web, we defer to the browser's internal overlay controls for mobile.
     return const SizedBox();
@@ -1038,6 +1064,7 @@ Widget defaultIosEditorToolbarBuilder(
     focalPoint: focalPoint,
     editorOps: editorOps,
     editorControlsController: editorControlsController,
+    onSharePressed: onSharePressed,
   );
 }
 
@@ -1049,17 +1076,30 @@ class DefaultIosEditorToolbar extends StatelessWidget {
     required this.focalPoint,
     required this.editorOps,
     required this.editorControlsController,
+    this.onSharePressed,
   });
 
   final Key? floatingToolbarKey;
   final LeaderLink focalPoint;
   final CommonEditorOperations editorOps;
   final SuperEditorIosControlsController editorControlsController;
+  final VoidCallback? onSharePressed;
 
   @override
   Widget build(BuildContext context) {
     final selection = editorOps.composer.selection;
     final isSelectionCollapsed = selection == null || selection.isCollapsed;
+    
+    // Get Share callback from registry or use provided one
+    final shareCallback = onSharePressed ?? (() {
+      if (SuperEditorShareRegistry.shareCallback != null && !isSelectionCollapsed) {
+        final text = _extractSelectedText();
+        if (text.isNotEmpty) {
+          SuperEditorShareRegistry.shareCallback!(context, text);
+          editorControlsController.hideToolbar();
+        }
+      }
+    });
     
     return IOSTextEditingFloatingToolbar(
       floatingToolbarKey: floatingToolbarKey,
@@ -1068,11 +1108,63 @@ class DefaultIosEditorToolbar extends StatelessWidget {
       onCopyPressed: !isSelectionCollapsed ? _copy : null,
       onPastePressed: _paste,
       onDeletePressed: !isSelectionCollapsed ? _delete : null,
-      onSharePressed: null, // Apps can provide Share via custom toolbar builder
+      onSharePressed: !isSelectionCollapsed ? shareCallback : null,
       onSelectPressed: isSelectionCollapsed ? _selectWord : null,
       onSelectAllPressed: isSelectionCollapsed ? _selectAll : null,
       isSelectionCollapsed: isSelectionCollapsed,
     );
+  }
+  
+  String _extractSelectedText() {
+    final selection = editorOps.composer.selection;
+    if (selection == null || selection.isCollapsed) return '';
+    
+    final document = editorOps.document;
+    final selectedNodes = document.getNodesInside(selection.base, selection.extent);
+    
+    final buffer = StringBuffer();
+    for (int i = 0; i < selectedNodes.length; i++) {
+      final node = selectedNodes[i];
+      if (node is TextNode) {
+        final text = node.text.toPlainText();
+        final basePosition = selection.base;
+        final extentPosition = selection.extent;
+        
+        if (basePosition.nodeId == node.id && extentPosition.nodeId == node.id) {
+          final baseOffset = basePosition.nodePosition is TextNodePosition
+              ? (basePosition.nodePosition as TextNodePosition).offset
+              : 0;
+          final extentOffset = extentPosition.nodePosition is TextNodePosition
+              ? (extentPosition.nodePosition as TextNodePosition).offset
+              : text.length;
+          
+          final start = baseOffset < extentOffset ? baseOffset : extentOffset;
+          final end = baseOffset < extentOffset ? extentOffset : baseOffset;
+          
+          if (start >= 0 && end <= text.length) {
+            buffer.write(text.substring(start, end));
+          }
+        } else if (basePosition.nodeId == node.id) {
+          final baseOffset = basePosition.nodePosition is TextNodePosition
+              ? (basePosition.nodePosition as TextNodePosition).offset
+              : 0;
+          buffer.write(text.substring(baseOffset));
+        } else if (extentPosition.nodeId == node.id) {
+          final extentOffset = extentPosition.nodePosition is TextNodePosition
+              ? (extentPosition.nodePosition as TextNodePosition).offset
+              : text.length;
+          buffer.write(text.substring(0, extentOffset));
+        } else {
+          buffer.write(text);
+        }
+        
+        if (i < selectedNodes.length - 1) {
+          buffer.write('\n');
+        }
+      }
+    }
+    
+    return buffer.toString();
   }
 
   void _cut() {
@@ -1153,6 +1245,17 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
       builder: (context, selection, child) {
         final isSelectionCollapsed = selection == null || selection.isCollapsed;
         
+        // Get Share callback from registry
+        final shareCallback = !isSelectionCollapsed && SuperEditorShareRegistry.shareCallback != null
+            ? () {
+                final text = _extractSelectedText();
+                if (text.isNotEmpty) {
+                  SuperEditorShareRegistry.shareCallback!(context, text);
+                  editorControlsController.hideToolbar();
+                }
+              }
+            : null;
+        
         return AndroidTextEditingFloatingToolbar(
           floatingToolbarKey: floatingToolbarKey,
           focalPoint: focalPoint,
@@ -1161,12 +1264,64 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
           onPastePressed: _paste,
           onSelectAllPressed: isSelectionCollapsed ? _selectAll : null,
           onDeletePressed: !isSelectionCollapsed ? _delete : null,
-          onSharePressed: null, // Apps can provide Share via custom toolbar builder
+          onSharePressed: shareCallback,
           onSelectPressed: isSelectionCollapsed ? _selectWord : null,
           isSelectionCollapsed: isSelectionCollapsed,
         );
       },
     );
+  }
+  
+  String _extractSelectedText() {
+    final selection = editorOps.composer.selection;
+    if (selection == null || selection.isCollapsed) return '';
+    
+    final document = editorOps.document;
+    final selectedNodes = document.getNodesInside(selection.base, selection.extent);
+    
+    final buffer = StringBuffer();
+    for (int i = 0; i < selectedNodes.length; i++) {
+      final node = selectedNodes[i];
+      if (node is TextNode) {
+        final text = node.text.toPlainText();
+        final basePosition = selection.base;
+        final extentPosition = selection.extent;
+        
+        if (basePosition.nodeId == node.id && extentPosition.nodeId == node.id) {
+          final baseOffset = basePosition.nodePosition is TextNodePosition
+              ? (basePosition.nodePosition as TextNodePosition).offset
+              : 0;
+          final extentOffset = extentPosition.nodePosition is TextNodePosition
+              ? (extentPosition.nodePosition as TextNodePosition).offset
+              : text.length;
+          
+          final start = baseOffset < extentOffset ? baseOffset : extentOffset;
+          final end = baseOffset < extentOffset ? extentOffset : baseOffset;
+          
+          if (start >= 0 && end <= text.length) {
+            buffer.write(text.substring(start, end));
+          }
+        } else if (basePosition.nodeId == node.id) {
+          final baseOffset = basePosition.nodePosition is TextNodePosition
+              ? (basePosition.nodePosition as TextNodePosition).offset
+              : 0;
+          buffer.write(text.substring(baseOffset));
+        } else if (extentPosition.nodeId == node.id) {
+          final extentOffset = extentPosition.nodePosition is TextNodePosition
+              ? (extentPosition.nodePosition as TextNodePosition).offset
+              : text.length;
+          buffer.write(text.substring(0, extentOffset));
+        } else {
+          buffer.write(text);
+        }
+        
+        if (i < selectedNodes.length - 1) {
+          buffer.write('\n');
+        }
+      }
+    }
+    
+    return buffer.toString();
   }
 
   void _cut() {
