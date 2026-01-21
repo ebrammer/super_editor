@@ -881,13 +881,15 @@ class SuperEditorState extends State<SuperEditor> {
       case DocumentGestureMode.iOS:
         return SuperEditorIosToolbarOverlayManager(
           tapRegionGroupId: widget.tapRegionGroupId,
-          defaultToolbarBuilder: (overlayContext, mobileToolbarKey, focalPoint) => defaultIosEditorToolbarBuilder(
-            overlayContext,
-            mobileToolbarKey,
-            focalPoint,
-            editContext.commonOps,
-            SuperEditorIosControlsScope.rootOf(context),
-          ),
+          defaultToolbarBuilder: widget.iOSToolbarBuilder != null
+              ? (overlayContext, mobileToolbarKey, focalPoint) => widget.iOSToolbarBuilder!(overlayContext)
+              : (overlayContext, mobileToolbarKey, focalPoint) => defaultIosEditorToolbarBuilder(
+                    overlayContext,
+                    mobileToolbarKey,
+                    focalPoint,
+                    editContext.commonOps,
+                    SuperEditorIosControlsScope.rootOf(context),
+                  ),
           child: SuperEditorIosMagnifierOverlayManager(
             child: EditorFloatingCursor(
               editor: widget.editor,
