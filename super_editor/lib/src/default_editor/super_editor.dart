@@ -929,14 +929,16 @@ class SuperEditorState extends State<SuperEditor> {
           },
           scrollChangeSignal: _scrollChangeSignal,
           dragHandleAutoScroller: _dragHandleAutoScroller,
-          defaultToolbarBuilder: (overlayContext, mobileToolbarKey, focalPoint) => defaultAndroidEditorToolbarBuilder(
-            overlayContext,
-            mobileToolbarKey,
-            editContext.commonOps,
-            SuperEditorAndroidControlsScope.rootOf(context),
-            editContext.composer.selectionNotifier,
-            focalPoint,
-          ),
+          defaultToolbarBuilder: widget.androidToolbarBuilder != null
+              ? (overlayContext, mobileToolbarKey, focalPoint) => widget.androidToolbarBuilder!(overlayContext)
+              : (overlayContext, mobileToolbarKey, focalPoint) => defaultAndroidEditorToolbarBuilder(
+                    overlayContext,
+                    mobileToolbarKey,
+                    editContext.commonOps,
+                    SuperEditorAndroidControlsScope.rootOf(context),
+                    editContext.composer.selectionNotifier,
+                    focalPoint,
+                  ),
           child: child,
         );
       case DocumentGestureMode.mouse:
