@@ -883,13 +883,7 @@ class SuperEditorState extends State<SuperEditor> {
           tapRegionGroupId: widget.tapRegionGroupId,
           defaultToolbarBuilder: widget.iOSToolbarBuilder != null
               ? (overlayContext, mobileToolbarKey, focalPoint) => widget.iOSToolbarBuilder!(overlayContext)
-              : (overlayContext, mobileToolbarKey, focalPoint) => defaultIosEditorToolbarBuilder(
-                    overlayContext,
-                    mobileToolbarKey,
-                    focalPoint,
-                    editContext.commonOps,
-                    SuperEditorIosControlsScope.rootOf(context),
-                  ),
+              : (overlayContext, mobileToolbarKey, focalPoint) => const SizedBox.shrink(), // Disabled - apps must provide custom toolbar
           child: SuperEditorIosMagnifierOverlayManager(
             child: EditorFloatingCursor(
               editor: widget.editor,
@@ -931,14 +925,7 @@ class SuperEditorState extends State<SuperEditor> {
           dragHandleAutoScroller: _dragHandleAutoScroller,
           defaultToolbarBuilder: widget.androidToolbarBuilder != null
               ? (overlayContext, mobileToolbarKey, focalPoint) => widget.androidToolbarBuilder!(overlayContext)
-              : (overlayContext, mobileToolbarKey, focalPoint) => defaultAndroidEditorToolbarBuilder(
-                    overlayContext,
-                    mobileToolbarKey,
-                    editContext.commonOps,
-                    SuperEditorAndroidControlsScope.rootOf(context),
-                    editContext.composer.selectionNotifier,
-                    focalPoint,
-                  ),
+              : (overlayContext, mobileToolbarKey, focalPoint) => const SizedBox.shrink(), // Disabled - apps must provide custom toolbar
           child: child,
         );
       case DocumentGestureMode.mouse:
