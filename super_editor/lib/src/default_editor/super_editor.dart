@@ -451,13 +451,23 @@ class SuperEditorState extends State<SuperEditor> {
   // continuously replace itself every time we rebuild. We want to retain the same
   // controls because they're shared throughout a number of disconnected widgets.
   final _iosControlsContextKey = GlobalKey();
-  final _iosControlsController = SuperEditorIosControlsController();
+  // Create controller with custom toolbar builder if deprecated builder is provided
+  late final SuperEditorIosControlsController _iosControlsController = SuperEditorIosControlsController(
+    toolbarBuilder: widget.iOSToolbarBuilder != null
+        ? (context, key, focalPoint) => widget.iOSToolbarBuilder!(context)
+        : null,
+  );
 
   // GlobalKey for the Android editor controls scope so that the scope's controller doesn't
   // continuously replace itself every time we rebuild. We want to retain the same
   // controls because they're shared throughout a number of disconnected widgets.
   final _androidControlsContextKey = GlobalKey();
-  final _androidControlsController = SuperEditorAndroidControlsController();
+  // Create controller with custom toolbar builder if deprecated builder is provided
+  late final SuperEditorAndroidControlsController _androidControlsController = SuperEditorAndroidControlsController(
+    toolbarBuilder: widget.androidToolbarBuilder != null
+        ? (context, key, focalPoint) => widget.androidToolbarBuilder!(context)
+        : null,
+  );
 
   // Leader links that connect leader widgets near the user's selection
   // to carets, handles, and other things that want to follow the selection.
@@ -811,20 +821,14 @@ class SuperEditorState extends State<SuperEditor> {
       case DocumentGestureMode.mouse:
         return child;
       case DocumentGestureMode.android:
-        // If deprecated builder is provided, set it on the controller so it takes precedence
-        if (widget.androidToolbarBuilder != null) {
-          _androidControlsController.toolbarBuilder = (context, key, focalPoint) => widget.androidToolbarBuilder!(context);
-        }
+        // Controller already has toolbarBuilder set if deprecated builder was provided
         return SuperEditorAndroidControlsScope(
           key: _androidControlsContextKey,
           controller: _androidControlsController,
           child: child,
         );
       case DocumentGestureMode.iOS:
-        // If deprecated builder is provided, set it on the controller so it takes precedence
-        if (widget.iOSToolbarBuilder != null) {
-          _iosControlsController.toolbarBuilder = (context, key, focalPoint) => widget.iOSToolbarBuilder!(context);
-        }
+        // Controller already has toolbarBuilder set if deprecated builder was provided
         return SuperEditorIosControlsScope(
           key: _iosControlsContextKey,
           controller: _iosControlsController,
