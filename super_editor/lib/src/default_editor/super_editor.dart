@@ -988,6 +988,9 @@ class SuperEditorState extends State<SuperEditor> {
 
 /// A [DocumentFloatingToolbarBuilder] that displays the iOS system popover toolbar, if the version of
 /// iOS is recent enough, otherwise builds [defaultIosEditorToolbarBuilder].
+/// 
+/// Steadfast Faith: Modified to always use custom toolbar with enhanced features
+/// instead of iOS system context menu.
 Widget iOSSystemPopoverEditorToolbarWithFallbackBuilder(
   BuildContext context,
   Key floatingToolbarKey,
@@ -1000,11 +1003,13 @@ Widget iOSSystemPopoverEditorToolbarWithFallbackBuilder(
     return const SizedBox();
   }
 
-  if (IOSSystemContextMenu.isSupported(context)) {
-    return IOSSystemContextMenu(
-      leaderLink: focalPoint,
-    );
-  }
+  // Steadfast Faith: Always use our custom toolbar with Delete, Share, Select, Select All
+  // instead of the iOS system context menu
+  // if (IOSSystemContextMenu.isSupported(context)) {
+  //   return IOSSystemContextMenu(
+  //     leaderLink: focalPoint,
+  //   );
+  // }
 
   return defaultIosEditorToolbarBuilder(
     context,
