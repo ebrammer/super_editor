@@ -1548,8 +1548,20 @@ class SuperEditorIosToolbarOverlayManagerState extends State<SuperEditorIosToolb
       child: IosFloatingToolbarOverlay(
         shouldShowToolbar: _controlsController!.shouldShowToolbar,
         toolbarFocalPoint: _controlsController!.toolbarFocalPoint,
-        floatingToolbarBuilder:
-            _controlsController!.toolbarBuilder ?? widget.defaultToolbarBuilder ?? (_, __, ___) => const SizedBox(),
+        floatingToolbarBuilder: _controlsController!.toolbarBuilder != null
+            ? (context, key, focalPoint) {
+                print('FORK: Using controller toolbarBuilder');
+                return _controlsController!.toolbarBuilder!(context, key, focalPoint);
+              }
+            : widget.defaultToolbarBuilder != null
+                ? (context, key, focalPoint) {
+                    print('FORK: Using defaultToolbarBuilder (should not happen if controllers set correctly)');
+                    return widget.defaultToolbarBuilder!(context, key, focalPoint);
+                  }
+                : (_, __, ___) {
+                    print('FORK: No toolbar builder - returning empty');
+                    return const SizedBox();
+                  },
         createOverlayControlsClipper: _controlsController!.createOverlayControlsClipper,
         showDebugPaint: false,
       ),
