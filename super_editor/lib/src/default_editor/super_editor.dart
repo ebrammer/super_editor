@@ -488,12 +488,18 @@ class SuperEditorState extends State<SuperEditor> {
     // Initialize controllers with custom toolbar builders if deprecated builders are provided
     _iosControlsController = SuperEditorIosControlsController(
       toolbarBuilder: widget.iOSToolbarBuilder != null
-          ? (context, key, focalPoint) => widget.iOSToolbarBuilder!(context)
+          ? (context, key, focalPoint) {
+              print('FORK: Calling deprecated iOSToolbarBuilder');
+              return widget.iOSToolbarBuilder!(context);
+            }
           : null,
     );
     _androidControlsController = SuperEditorAndroidControlsController(
       toolbarBuilder: widget.androidToolbarBuilder != null
-          ? (context, key, focalPoint) => widget.androidToolbarBuilder!(context)
+          ? (context, key, focalPoint) {
+              print('FORK: Calling deprecated androidToolbarBuilder');
+              return widget.androidToolbarBuilder!(context);
+            }
           : null,
     );
 
