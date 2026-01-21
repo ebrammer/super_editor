@@ -811,12 +811,20 @@ class SuperEditorState extends State<SuperEditor> {
       case DocumentGestureMode.mouse:
         return child;
       case DocumentGestureMode.android:
+        // If deprecated builder is provided, set it on the controller so it takes precedence
+        if (widget.androidToolbarBuilder != null) {
+          _androidControlsController.toolbarBuilder = (context, key, focalPoint) => widget.androidToolbarBuilder!(context);
+        }
         return SuperEditorAndroidControlsScope(
           key: _androidControlsContextKey,
           controller: _androidControlsController,
           child: child,
         );
       case DocumentGestureMode.iOS:
+        // If deprecated builder is provided, set it on the controller so it takes precedence
+        if (widget.iOSToolbarBuilder != null) {
+          _iosControlsController.toolbarBuilder = (context, key, focalPoint) => widget.iOSToolbarBuilder!(context);
+        }
         return SuperEditorIosControlsScope(
           key: _iosControlsContextKey,
           controller: _iosControlsController,
