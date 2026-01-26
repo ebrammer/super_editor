@@ -190,9 +190,12 @@ class HorizontalRuleComponent extends StatelessWidget {
         child: BoxComponent(
           key: componentKey,
           opacity: opacity,
-          child: Divider(
-            color: color,
-            thickness: thickness,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 24.0),
+            child: Divider(
+              color: color,
+              thickness: thickness,
+            ),
           ),
         ),
       ),

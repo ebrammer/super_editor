@@ -1,5 +1,6 @@
 import 'package:attributed_text/attributed_text.dart';
-import 'package:flutter/foundation.dart' show ValueListenable, defaultTargetPlatform;
+import 'package:flutter/foundation.dart'
+    show ValueListenable, defaultTargetPlatform;
 import 'package:flutter/material.dart' hide SelectableText;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -60,7 +61,7 @@ import 'unknown_component.dart';
 typedef ShareTextCallback = void Function(BuildContext context, String text);
 
 /// Registry for Share callback - set by app to provide custom Share implementation
-/// 
+///
 /// Usage in app:
 /// ```dart
 /// SuperEditorShareRegistry.setShareCallback((context, text) {
@@ -69,14 +70,14 @@ typedef ShareTextCallback = void Function(BuildContext context, String text);
 /// ```
 class SuperEditorShareRegistry {
   SuperEditorShareRegistry._();
-  
+
   static ShareTextCallback? _shareCallback;
-  
+
   /// Set the Share callback that will be called when Share button is pressed
   static void setShareCallback(ShareTextCallback? callback) {
     _shareCallback = callback;
   }
-  
+
   static ShareTextCallback? get shareCallback => _shareCallback;
 }
 
@@ -132,10 +133,12 @@ class SuperEditor extends StatefulWidget {
     this.tapRegionGroupId,
     required this.editor,
     @Deprecated(
-        "The document is now retrieved from the Editor. You should remove this property from your SuperEditor widget.")
+      "The document is now retrieved from the Editor. You should remove this property from your SuperEditor widget.",
+    )
     this.document,
     @Deprecated(
-        "The composer is now retrieved from the Editor. You should remove this property from your SuperEditor widget.")
+      "The composer is now retrieved from the Editor. You should remove this property from your SuperEditor widget.",
+    )
     this.composer,
     this.scrollController,
     this.documentLayoutKey,
@@ -154,7 +157,9 @@ class SuperEditor extends StatefulWidget {
     this.keyboardActions,
     this.selectorHandlers,
     this.gestureMode,
-    this.contentTapDelegateFactories = const [superEditorLaunchLinkTapHandlerFactory],
+    this.contentTapDelegateFactories = const [
+      superEditorLaunchLinkTapHandlerFactory,
+    ],
     this.selectionLayerLinks,
     this.documentUnderlayBuilders = const [],
     this.documentOverlayBuilders = defaultSuperEditorDocumentOverlayBuilders,
@@ -173,7 +178,10 @@ class SuperEditor extends StatefulWidget {
           for (final plugin in plugins) ...plugin.componentBuilders,
           if (componentBuilders != null)
             ...componentBuilders
-          else ...[...defaultComponentBuilders, TaskComponentBuilder(editor)],
+          else ...[
+            ...defaultComponentBuilders,
+            TaskComponentBuilder(editor),
+          ],
           const UnknownComponentBuilder(),
         ],
         super(key: key);
@@ -219,13 +227,15 @@ class SuperEditor extends StatefulWidget {
 
   /// The [Document] that's edited by the [editor].
   @Deprecated(
-      "The Document is now retrieved from the Editor. You should remove this property from your SuperEditor widget.")
+    "The Document is now retrieved from the Editor. You should remove this property from your SuperEditor widget.",
+  )
   final Document? document;
 
   /// Owns the editor's current selection, the current attributions for
   /// text input, and other transitive editor configurations.
   @Deprecated(
-      "The DocumentComposer is now retrieved from the Editor. You should remove this property from your SuperEditor widget.")
+    "The DocumentComposer is now retrieved from the Editor. You should remove this property from your SuperEditor widget.",
+  )
   final DocumentComposer? composer;
 
   /// [GlobalKey] that's bound to the [DocumentLayout] within
@@ -367,23 +377,32 @@ class SuperEditor extends StatefulWidget {
 
   /// Shows, hides, and positions a floating toolbar and magnifier.
   @Deprecated(
-      "To configure overlay controls, surround SuperEditor with a SuperEditorIosControlsScope and/or SuperEditorAndroidControlsScope")
+    "To configure overlay controls, surround SuperEditor with a SuperEditorIosControlsScope and/or SuperEditorAndroidControlsScope",
+  )
   final MagnifierAndToolbarController? overlayController;
 
   /// Color of the text selection drag handles on Android.
-  @Deprecated("To configure handle color, surround SuperEditor with a SuperEditorAndroidControlsScope, instead")
+  @Deprecated(
+    "To configure handle color, surround SuperEditor with a SuperEditorAndroidControlsScope, instead",
+  )
   final Color? androidHandleColor;
 
   /// Builder that creates a floating toolbar when running on Android.
-  @Deprecated("To configure a toolbar builder, surround SuperEditor with a SuperEditorAndroidControlsScope, instead")
+  @Deprecated(
+    "To configure a toolbar builder, surround SuperEditor with a SuperEditorAndroidControlsScope, instead",
+  )
   final WidgetBuilder? androidToolbarBuilder;
 
   /// Color of the text selection drag handles on iOS.
-  @Deprecated("To configure handle color, surround SuperEditor with a SuperEditorIosControlsScope, instead")
+  @Deprecated(
+    "To configure handle color, surround SuperEditor with a SuperEditorIosControlsScope, instead",
+  )
   final Color? iOSHandleColor;
 
   /// Builder that creates a floating toolbar when running on iOS.
-  @Deprecated("To configure a toolbar builder, surround SuperEditor with a SuperEditorIosControlsScope, instead")
+  @Deprecated(
+    "To configure a toolbar builder, surround SuperEditor with a SuperEditorIosControlsScope, instead",
+  )
   final WidgetBuilder? iOSToolbarBuilder;
 
   /// Creates a clipper that applies to overlay controls, like drag
@@ -394,8 +413,10 @@ class SuperEditor extends StatefulWidget {
   /// will be allowed to appear anywhere in the overlay in which they sit
   /// (probably the entire screen).
   @Deprecated(
-      "To configure an overlay clipper, surround SuperEditor with a SuperEditorIosControlsScope and/or a SuperEditorAndroidControlsScope")
-  final CustomClipper<Rect> Function(BuildContext overlayContext)? createOverlayControlsClipper;
+    "To configure an overlay clipper, surround SuperEditor with a SuperEditorIosControlsScope and/or a SuperEditorAndroidControlsScope",
+  )
+  final CustomClipper<Rect> Function(BuildContext overlayContext)?
+      createOverlayControlsClipper;
 
   /// Plugins that add sets of behaviors to the editing experience.
   final Set<SuperEditorPlugin> plugins;
@@ -420,7 +441,8 @@ class SuperEditorState extends State<SuperEditor> {
   final _documentLayoutLink = LayerLink();
   SingleColumnLayoutPresenter? _docLayoutPresenter;
   late SingleColumnStylesheetStyler _docStylesheetStyler;
-  late SingleColumnLayoutCustomComponentStyler _docLayoutPerComponentBlockStyler;
+  late SingleColumnLayoutCustomComponentStyler
+      _docLayoutPerComponentBlockStyler;
   final _customUnderlineStyler = CustomUnderlineStyler();
   late SingleColumnLayoutSelectionStyler _docLayoutSelectionStyler;
 
@@ -478,18 +500,23 @@ class SuperEditorState extends State<SuperEditor> {
 
     if (widget.editor.maybeDocument == null) {
       throw Exception(
-          "No Document is available to SuperEditor. The Editor given to SuperEditor must contain a MutableDocument in the set of Editables.");
+        "No Document is available to SuperEditor. The Editor given to SuperEditor must contain a MutableDocument in the set of Editables.",
+      );
     }
     if (widget.editor.maybeComposer == null) {
       throw Exception(
-          "No DocumentComposer is available to SuperEditor. The Editor given to SuperEditor must contain a MutableDocumentComposer in the set of Editables.");
+        "No DocumentComposer is available to SuperEditor. The Editor given to SuperEditor must contain a MutableDocumentComposer in the set of Editables.",
+      );
     }
 
     // Initialize controllers with custom toolbar builders if deprecated builders are provided
     _iosControlsController = SuperEditorIosControlsController(
       toolbarBuilder: widget.iOSToolbarBuilder != null
           ? (context, key, focalPoint) {
-              print('FORK: Calling deprecated iOSToolbarBuilder');
+              final selection = widget.editor.composer.selection;
+              print(
+                'FORK: Calling deprecated iOSToolbarBuilder - selection: $selection, isCollapsed: ${selection?.isCollapsed}',
+              );
               return widget.iOSToolbarBuilder!(context);
             }
           : null,
@@ -514,15 +541,15 @@ class SuperEditorState extends State<SuperEditor> {
 
     _selectionLinks = widget.selectionLayerLinks ?? SelectionLayerLinks();
 
-    _softwareKeyboardController = widget.softwareKeyboardController ?? SoftwareKeyboardController();
+    _softwareKeyboardController =
+        widget.softwareKeyboardController ?? SoftwareKeyboardController();
 
     _isImeConnected = widget.isImeConnected ?? ValueNotifier(false);
 
-    _documentLayoutEditable = DocumentLayoutEditable(() => _docLayoutKey.currentState as DocumentLayout);
-    widget.editor.context.put(
-      Editor.layoutKey,
-      _documentLayoutEditable,
+    _documentLayoutEditable = DocumentLayoutEditable(
+      () => _docLayoutKey.currentState as DocumentLayout,
     );
+    widget.editor.context.put(Editor.layoutKey, _documentLayoutEditable);
 
     _createEditContext();
     _createLayoutPresenter();
@@ -533,7 +560,8 @@ class SuperEditorState extends State<SuperEditor> {
     super.didUpdateWidget(oldWidget);
 
     if (widget.focusNode != oldWidget.focusNode) {
-      _focusNode = (widget.focusNode ?? FocusNode())..addListener(_onFocusChange);
+      _focusNode = (widget.focusNode ?? FocusNode())
+        ..addListener(_onFocusChange);
     }
 
     if (widget.documentLayoutKey != oldWidget.documentLayoutKey) {
@@ -547,7 +575,8 @@ class SuperEditorState extends State<SuperEditor> {
     if (widget.editor.maybeComposer != oldWidget.editor.composer) {
       if (widget.editor.maybeComposer == null) {
         throw Exception(
-            "No DocumentComposer is available to SuperEditor. The Editor given to SuperEditor must contain a MutableDocumentComposer in the set of Editables.");
+          "No DocumentComposer is available to SuperEditor. The Editor given to SuperEditor must contain a MutableDocumentComposer in the set of Editables.",
+        );
       }
 
       _composer = widget.editor.composer;
@@ -563,11 +592,10 @@ class SuperEditorState extends State<SuperEditor> {
         Editor.layoutKey,
         _documentLayoutEditable,
       );
-      _documentLayoutEditable = DocumentLayoutEditable(() => _docLayoutKey.currentState as DocumentLayout);
-      widget.editor.context.put(
-        Editor.layoutKey,
-        _documentLayoutEditable,
+      _documentLayoutEditable = DocumentLayoutEditable(
+        () => _docLayoutKey.currentState as DocumentLayout,
       );
+      widget.editor.context.put(Editor.layoutKey, _documentLayoutEditable);
 
       _createEditContext();
       _createLayoutPresenter();
@@ -584,8 +612,10 @@ class SuperEditorState extends State<SuperEditor> {
       _scrollController = widget.scrollController ?? ScrollController();
     }
 
-    if (widget.softwareKeyboardController != oldWidget.softwareKeyboardController) {
-      _softwareKeyboardController = widget.softwareKeyboardController ?? SoftwareKeyboardController();
+    if (widget.softwareKeyboardController !=
+        oldWidget.softwareKeyboardController) {
+      _softwareKeyboardController =
+          widget.softwareKeyboardController ?? SoftwareKeyboardController();
     }
 
     if (widget.isImeConnected != oldWidget.isImeConnected) {
@@ -625,7 +655,8 @@ class SuperEditorState extends State<SuperEditor> {
     if (_scroller != null) {
       _scroller!.dispose();
     }
-    _scroller = DocumentScroller()..addScrollChangeListener(_scrollChangeSignal.notifyListeners);
+    _scroller = DocumentScroller()
+      ..addScrollChangeListener(_scrollChangeSignal.notifyListeners);
 
     editContext = SuperEditorContext(
       editorFocusNode: _focusNode,
@@ -638,7 +669,8 @@ class SuperEditorState extends State<SuperEditor> {
         editor: widget.editor,
         document: widget.editor.document,
         composer: _composer,
-        documentLayoutResolver: () => _docLayoutKey.currentState as DocumentLayout,
+        documentLayoutResolver: () =>
+            _docLayoutKey.currentState as DocumentLayout,
       ),
     );
 
@@ -653,7 +685,9 @@ class SuperEditorState extends State<SuperEditor> {
         handler.dispose();
       }
     }
-    _contentTapHandlers = widget.contentTapDelegateFactories?.map((factory) => factory.call(editContext)).toList();
+    _contentTapHandlers = widget.contentTapDelegateFactories
+        ?.map((factory) => factory.call(editContext))
+        .toList();
   }
 
   void _createLayoutPresenter() {
@@ -663,9 +697,12 @@ class SuperEditorState extends State<SuperEditor> {
 
     final document = editContext.document;
 
-    _docStylesheetStyler = SingleColumnStylesheetStyler(stylesheet: widget.stylesheet);
+    _docStylesheetStyler = SingleColumnStylesheetStyler(
+      stylesheet: widget.stylesheet,
+    );
 
-    _docLayoutPerComponentBlockStyler = SingleColumnLayoutCustomComponentStyler();
+    _docLayoutPerComponentBlockStyler =
+        SingleColumnLayoutCustomComponentStyler();
 
     _docLayoutSelectionStyler = SingleColumnLayoutSelectionStyler(
       document: document,
@@ -674,9 +711,10 @@ class SuperEditorState extends State<SuperEditor> {
       selectedTextColorStrategy: widget.stylesheet.selectedTextColorStrategy,
     );
 
-    final showComposingUnderline = defaultTargetPlatform == TargetPlatform.macOS ||
-        defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.android;
+    final showComposingUnderline =
+        defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.android;
 
     _docLayoutPresenter = SingleColumnLayoutPresenter(
       document: document,
@@ -710,7 +748,8 @@ class SuperEditorState extends State<SuperEditor> {
   }
 
   void _recomputeIfLayoutShouldShowCaret() {
-    _docLayoutSelectionStyler.shouldDocumentShowCaret = _focusNode.hasFocus && gestureMode == DocumentGestureMode.mouse;
+    _docLayoutSelectionStyler.shouldDocumentShowCaret =
+        _focusNode.hasFocus && gestureMode == DocumentGestureMode.mouse;
   }
 
   @visibleForTesting
@@ -738,7 +777,9 @@ class SuperEditorState extends State<SuperEditor> {
   /// Returns the key handlers that respond to keyboard events within [SuperEditor].
   List<SuperEditorKeyboardAction> get _keyboardActions =>
       widget.keyboardActions ??
-      (inputSource == TextInputSource.ime ? defaultImeKeyboardActions : defaultKeyboardActions);
+      (inputSource == TextInputSource.ime
+          ? defaultImeKeyboardActions
+          : defaultKeyboardActions);
 
   void _openSoftwareKeyboard() {
     if (!_softwareKeyboardController.hasDelegate) {
@@ -754,64 +795,77 @@ class SuperEditorState extends State<SuperEditor> {
     return _buildGestureControlsScope(
       // We add a Builder immediately beneath the gesture controls scope so that
       // all descendant widgets built within SuperEditor can access that scope.
-      child: Builder(builder: (controlsScopeContext) {
-        return SuperEditorFocusDebugVisuals(
-          focusNode: _focusNode,
-          child: EditorSelectionAndFocusPolicy(
+      child: Builder(
+        builder: (controlsScopeContext) {
+          return SuperEditorFocusDebugVisuals(
             focusNode: _focusNode,
-            editor: widget.editor,
-            document: widget.editor.document,
-            selection: _composer.selectionNotifier,
-            isDocumentLayoutAvailable: () =>
-                (_docLayoutKey.currentContext?.findRenderObject() as RenderSliver?)?.hasSize == true,
-            getDocumentLayout: () => editContext.documentLayout,
-            placeCaretAtEndOfDocumentOnGainFocus: widget.selectionPolicies.placeCaretAtEndOfDocumentOnGainFocus,
-            restorePreviousSelectionOnGainFocus: widget.selectionPolicies.restorePreviousSelectionOnGainFocus,
-            clearSelectionWhenEditorLosesFocus: widget.selectionPolicies.clearSelectionWhenEditorLosesFocus,
-            child: DocumentScaffold(
-              documentLayoutLink: _documentLayoutLink,
-              documentLayoutKey: _docLayoutKey,
-              viewportDecorationBuilder: _buildPlatformSpecificViewportDecorations,
-              textInputBuilder: _buildTextInputSystem,
-              gestureBuilder: _buildGestureInteractor,
-              scrollController: _scrollController,
-              autoScrollController: _autoScrollController,
-              scroller: _scroller,
-              presenter: presenter,
-              componentBuilders: widget.componentBuilders,
-              shrinkWrap: widget.shrinkWrap,
-              underlays: [
-                // Add all underlays from plugins.
-                for (final plugin in widget.plugins) //
-                  for (final underlayBuilder in plugin.documentUnderlayBuilders) //
+            child: EditorSelectionAndFocusPolicy(
+              focusNode: _focusNode,
+              editor: widget.editor,
+              document: widget.editor.document,
+              selection: _composer.selectionNotifier,
+              isDocumentLayoutAvailable: () =>
+                  (_docLayoutKey.currentContext?.findRenderObject()
+                          as RenderSliver?)
+                      ?.hasSize ==
+                  true,
+              getDocumentLayout: () => editContext.documentLayout,
+              placeCaretAtEndOfDocumentOnGainFocus:
+                  widget.selectionPolicies.placeCaretAtEndOfDocumentOnGainFocus,
+              restorePreviousSelectionOnGainFocus:
+                  widget.selectionPolicies.restorePreviousSelectionOnGainFocus,
+              clearSelectionWhenEditorLosesFocus:
+                  widget.selectionPolicies.clearSelectionWhenEditorLosesFocus,
+              child: DocumentScaffold(
+                documentLayoutLink: _documentLayoutLink,
+                documentLayoutKey: _docLayoutKey,
+                viewportDecorationBuilder:
+                    _buildPlatformSpecificViewportDecorations,
+                textInputBuilder: _buildTextInputSystem,
+                gestureBuilder: _buildGestureInteractor,
+                scrollController: _scrollController,
+                autoScrollController: _autoScrollController,
+                scroller: _scroller,
+                presenter: presenter,
+                componentBuilders: widget.componentBuilders,
+                shrinkWrap: widget.shrinkWrap,
+                underlays: [
+                  // Add all underlays from plugins.
+                  for (final plugin in widget.plugins) //
+                    for (final underlayBuilder
+                        in plugin.documentUnderlayBuilders) //
+                      (context) => underlayBuilder.build(context, editContext),
+                  // Add all underlays that the app wants.
+                  for (final underlayBuilder
+                      in widget.documentUnderlayBuilders) //
                     (context) => underlayBuilder.build(context, editContext),
-                // Add all underlays that the app wants.
-                for (final underlayBuilder in widget.documentUnderlayBuilders) //
-                  (context) => underlayBuilder.build(context, editContext),
-              ],
-              overlays: [
-                // Layer that positions and sizes leader widgets at the bounds
-                // of the users selection so that carets, handles, toolbars, and
-                // other things can follow the selection.
-                (context) {
-                  return _SelectionLeadersDocumentLayerBuilder(
-                    links: _selectionLinks,
-                    showDebugLeaderBounds: false,
-                  ).build(context, editContext);
-                },
-                // Add all overlays from plugins.
-                for (final plugin in widget.plugins) //
-                  for (final overlayBuilder in plugin.documentOverlayBuilders) //
+                ],
+                overlays: [
+                  // Layer that positions and sizes leader widgets at the bounds
+                  // of the users selection so that carets, handles, toolbars, and
+                  // other things can follow the selection.
+                  (context) {
+                    return _SelectionLeadersDocumentLayerBuilder(
+                      links: _selectionLinks,
+                      showDebugLeaderBounds: false,
+                    ).build(context, editContext);
+                  },
+                  // Add all overlays from plugins.
+                  for (final plugin in widget.plugins) //
+                    for (final overlayBuilder
+                        in plugin.documentOverlayBuilders) //
+                      (context) => overlayBuilder.build(context, editContext),
+                  // Add all overlays that the app wants.
+                  for (final overlayBuilder
+                      in widget.documentOverlayBuilders) //
                     (context) => overlayBuilder.build(context, editContext),
-                // Add all overlays that the app wants.
-                for (final overlayBuilder in widget.documentOverlayBuilders) //
-                  (context) => overlayBuilder.build(context, editContext),
-              ],
-              debugPaint: widget.debugPaint,
+                ],
+                debugPaint: widget.debugPaint,
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
@@ -824,9 +878,7 @@ class SuperEditorState extends State<SuperEditor> {
   /// of [SuperEditor], and widgets outside of [SuperEditor].
   ///
   /// The specific scope that's added to the widget tree is selected by the given [gestureMode].
-  Widget _buildGestureControlsScope({
-    required Widget child,
-  }) {
+  Widget _buildGestureControlsScope({required Widget child}) {
     switch (gestureMode) {
       case DocumentGestureMode.mouse:
         return child;
@@ -849,10 +901,7 @@ class SuperEditorState extends State<SuperEditor> {
 
   /// Builds the widget tree that applies user input, e.g., key
   /// presses from a keyboard, or text deltas from the IME.
-  Widget _buildTextInputSystem(
-    BuildContext context, {
-    required Widget child,
-  }) {
+  Widget _buildTextInputSystem(BuildContext context, {required Widget child}) {
     switch (inputSource) {
       case TextInputSource.keyboard:
         return SuperEditorHardwareKeyHandler(
@@ -872,8 +921,10 @@ class SuperEditorState extends State<SuperEditor> {
           autofocus: widget.autofocus,
           editContext: editContext,
           inputRole: widget.inputRole,
-          clearSelectionWhenEditorLosesFocus: widget.selectionPolicies.clearSelectionWhenEditorLosesFocus,
-          clearSelectionWhenImeConnectionCloses: widget.selectionPolicies.clearSelectionWhenImeConnectionCloses,
+          clearSelectionWhenEditorLosesFocus:
+              widget.selectionPolicies.clearSelectionWhenEditorLosesFocus,
+          clearSelectionWhenImeConnectionCloses:
+              widget.selectionPolicies.clearSelectionWhenImeConnectionCloses,
           softwareKeyboardController: _softwareKeyboardController,
           imePolicies: widget.imePolicies,
           imeConfiguration: widget.imeConfiguration ??
@@ -886,7 +937,8 @@ class SuperEditorState extends State<SuperEditor> {
               ...plugin.keyboardActions,
             ..._keyboardActions,
           ],
-          selectorHandlers: widget.selectorHandlers ?? defaultEditorSelectorHandlers,
+          selectorHandlers:
+              widget.selectorHandlers ?? defaultEditorSelectorHandlers,
           isImeConnected: _isImeConnected,
           child: child,
         );
@@ -905,18 +957,24 @@ class SuperEditorState extends State<SuperEditor> {
           tapRegionGroupId: widget.tapRegionGroupId,
           defaultToolbarBuilder: widget.iOSToolbarBuilder != null
               ? (overlayContext, mobileToolbarKey, focalPoint) {
-                  print('FORK: defaultToolbarBuilder called with deprecated builder');
+                  print(
+                    'FORK: defaultToolbarBuilder called with deprecated builder',
+                  );
                   return widget.iOSToolbarBuilder!(overlayContext);
                 }
               : (overlayContext, mobileToolbarKey, focalPoint) {
-                  print('FORK: defaultToolbarBuilder called - no deprecated builder, returning empty');
-                  return const SizedBox.shrink(); // Disabled - apps must provide custom toolbar
+                  print(
+                    'FORK: defaultToolbarBuilder called - no deprecated builder, returning empty',
+                  );
+                  return const SizedBox
+                      .shrink(); // Disabled - apps must provide custom toolbar
                 },
           child: SuperEditorIosMagnifierOverlayManager(
             child: EditorFloatingCursor(
               editor: widget.editor,
               document: widget.editor.document,
-              getDocumentLayout: () => _docLayoutKey.currentState as DocumentLayout,
+              getDocumentLayout: () =>
+                  _docLayoutKey.currentState as DocumentLayout,
               selection: widget.editor.composer.selectionNotifier,
               scrollChangeSignal: _scrollChangeSignal,
               child: child,
@@ -944,7 +1002,9 @@ class SuperEditorState extends State<SuperEditor> {
             editContext.editor.execute([
               ChangeSelectionRequest(
                 newSelection,
-                newSelection.isCollapsed ? SelectionChangeType.pushCaret : SelectionChangeType.expandSelection,
+                newSelection.isCollapsed
+                    ? SelectionChangeType.pushCaret
+                    : SelectionChangeType.expandSelection,
                 SelectionReason.userInteraction,
               ),
             ]);
@@ -952,8 +1012,10 @@ class SuperEditorState extends State<SuperEditor> {
           scrollChangeSignal: _scrollChangeSignal,
           dragHandleAutoScroller: _dragHandleAutoScroller,
           defaultToolbarBuilder: widget.androidToolbarBuilder != null
-              ? (overlayContext, mobileToolbarKey, focalPoint) => widget.androidToolbarBuilder!(overlayContext)
-              : (overlayContext, mobileToolbarKey, focalPoint) => const SizedBox.shrink(), // Disabled - apps must provide custom toolbar
+              ? (overlayContext, mobileToolbarKey, focalPoint) =>
+                  widget.androidToolbarBuilder!(overlayContext)
+              : (overlayContext, mobileToolbarKey, focalPoint) => const SizedBox
+                  .shrink(), // Disabled - apps must provide custom toolbar
           child: child,
         );
       case DocumentGestureMode.mouse:
@@ -961,10 +1023,14 @@ class SuperEditorState extends State<SuperEditor> {
     }
   }
 
-  Widget _buildGestureInteractor(BuildContext context, {required Widget child}) {
+  Widget _buildGestureInteractor(
+    BuildContext context, {
+    required Widget child,
+  }) {
     // Ensure that gesture object fill entire viewport when not being
     // in user specified scrollable.
-    final fillViewport = context.findAncestorScrollableWithVerticalScroll == null;
+    final fillViewport =
+        context.findAncestorScrollableWithVerticalScroll == null;
     switch (gestureMode) {
       case DocumentGestureMode.mouse:
         return DocumentMouseInteractor(
@@ -991,8 +1057,10 @@ class SuperEditorState extends State<SuperEditor> {
           document: editContext.document,
           getDocumentLayout: () => editContext.documentLayout,
           selection: editContext.composer.selectionNotifier,
-          openKeyboardWhenTappingExistingSelection: widget.selectionPolicies.openKeyboardWhenTappingExistingSelection,
-          openKeyboardOnSelectionChange: widget.imePolicies.openKeyboardOnSelectionChange,
+          openKeyboardWhenTappingExistingSelection:
+              widget.selectionPolicies.openKeyboardWhenTappingExistingSelection,
+          openKeyboardOnSelectionChange:
+              widget.imePolicies.openKeyboardOnSelectionChange,
           openSoftwareKeyboard: _openSoftwareKeyboard,
           contentTapHandlers: [
             ..._contentTapHandlers ?? [],
@@ -1012,8 +1080,10 @@ class SuperEditorState extends State<SuperEditor> {
           document: editContext.document,
           getDocumentLayout: () => editContext.documentLayout,
           selection: editContext.composer.selectionNotifier,
-          openKeyboardWhenTappingExistingSelection: widget.selectionPolicies.openKeyboardWhenTappingExistingSelection,
-          openKeyboardOnSelectionChange: widget.imePolicies.openKeyboardOnSelectionChange,
+          openKeyboardWhenTappingExistingSelection:
+              widget.selectionPolicies.openKeyboardWhenTappingExistingSelection,
+          openKeyboardOnSelectionChange:
+              widget.imePolicies.openKeyboardOnSelectionChange,
           openSoftwareKeyboard: _openSoftwareKeyboard,
           contentTapHandlers: [
             ..._contentTapHandlers ?? [],
@@ -1032,7 +1102,7 @@ class SuperEditorState extends State<SuperEditor> {
 
 /// A [DocumentFloatingToolbarBuilder] that displays the iOS system popover toolbar, if the version of
 /// iOS is recent enough, otherwise builds [defaultIosEditorToolbarBuilder].
-/// 
+///
 /// Steadfast Faith: Modified to always use custom toolbar with enhanced features
 /// instead of iOS system context menu.
 Widget iOSSystemPopoverEditorToolbarWithFallbackBuilder(
@@ -1076,7 +1146,7 @@ Widget defaultIosEditorToolbarBuilder(
 }) {
   // DISABLED - Return empty, apps must provide custom toolbar
   return const SizedBox.shrink();
-  
+
   /* DISABLED - Default toolbar removed
   if (CurrentPlatform.isWeb) {
     // On web, we defer to the browser's internal overlay controls for mobile.
@@ -1114,18 +1184,20 @@ class DefaultIosEditorToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final selection = editorOps.composer.selection;
     final isSelectionCollapsed = selection == null || selection.isCollapsed;
-    
+
     // Get Share callback from registry or use provided one
-    final shareCallback = onSharePressed ?? (() {
-      if (SuperEditorShareRegistry.shareCallback != null && !isSelectionCollapsed) {
-        final text = _extractSelectedText();
-        if (text.isNotEmpty) {
-          SuperEditorShareRegistry.shareCallback!(context, text);
-          editorControlsController.hideToolbar();
-        }
-      }
-    });
-    
+    final shareCallback = onSharePressed ??
+        (() {
+          if (SuperEditorShareRegistry.shareCallback != null &&
+              !isSelectionCollapsed) {
+            final text = _extractSelectedText();
+            if (text.isNotEmpty) {
+              SuperEditorShareRegistry.shareCallback!(context, text);
+              editorControlsController.hideToolbar();
+            }
+          }
+        });
+
     return IOSTextEditingFloatingToolbar(
       floatingToolbarKey: floatingToolbarKey,
       focalPoint: focalPoint,
@@ -1139,14 +1211,17 @@ class DefaultIosEditorToolbar extends StatelessWidget {
       isSelectionCollapsed: isSelectionCollapsed,
     );
   }
-  
+
   String _extractSelectedText() {
     final selection = editorOps.composer.selection;
     if (selection == null || selection.isCollapsed) return '';
-    
+
     final document = editorOps.document;
-    final selectedNodes = document.getNodesInside(selection.base, selection.extent);
-    
+    final selectedNodes = document.getNodesInside(
+      selection.base,
+      selection.extent,
+    );
+
     final buffer = StringBuffer();
     for (int i = 0; i < selectedNodes.length; i++) {
       final node = selectedNodes[i];
@@ -1154,18 +1229,19 @@ class DefaultIosEditorToolbar extends StatelessWidget {
         final text = node.text.toPlainText();
         final basePosition = selection.base;
         final extentPosition = selection.extent;
-        
-        if (basePosition.nodeId == node.id && extentPosition.nodeId == node.id) {
+
+        if (basePosition.nodeId == node.id &&
+            extentPosition.nodeId == node.id) {
           final baseOffset = basePosition.nodePosition is TextNodePosition
               ? (basePosition.nodePosition as TextNodePosition).offset
               : 0;
           final extentOffset = extentPosition.nodePosition is TextNodePosition
               ? (extentPosition.nodePosition as TextNodePosition).offset
               : text.length;
-          
+
           final start = baseOffset < extentOffset ? baseOffset : extentOffset;
           final end = baseOffset < extentOffset ? extentOffset : baseOffset;
-          
+
           if (start >= 0 && end <= text.length) {
             buffer.write(text.substring(start, end));
           }
@@ -1182,13 +1258,13 @@ class DefaultIosEditorToolbar extends StatelessWidget {
         } else {
           buffer.write(text);
         }
-        
+
         if (i < selectedNodes.length - 1) {
           buffer.write('\n');
         }
       }
     }
-    
+
     return buffer.toString();
   }
 
@@ -1206,22 +1282,22 @@ class DefaultIosEditorToolbar extends StatelessWidget {
     editorOps.paste();
     editorControlsController.hideToolbar();
   }
-  
+
   void _delete() {
     editorOps.deleteSelection(TextAffinity.downstream);
     editorControlsController.hideToolbar();
   }
-  
+
   void _selectAll() {
     editorOps.selectAll();
     editorControlsController.hideToolbar();
   }
-  
+
   void _selectWord() {
     // Basic word selection - can be enhanced
     final selection = editorOps.composer.selection;
     if (selection == null || !selection.isCollapsed) return;
-    
+
     // For now, just select all - can be enhanced with word boundary detection
     editorOps.selectAll();
     editorControlsController.hideToolbar();
@@ -1240,7 +1316,7 @@ Widget defaultAndroidEditorToolbarBuilder(
 ) {
   // DISABLED - Return empty, apps must provide custom toolbar
   return const SizedBox.shrink();
-  
+
   /* DISABLED - Default toolbar removed
   return DefaultAndroidEditorToolbar(
     floatingToolbarKey: floatingToolbarKey,
@@ -1275,9 +1351,10 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
       valueListenable: selectionNotifier,
       builder: (context, selection, child) {
         final isSelectionCollapsed = selection == null || selection.isCollapsed;
-        
+
         // Get Share callback from registry
-        final shareCallback = !isSelectionCollapsed && SuperEditorShareRegistry.shareCallback != null
+        final shareCallback = !isSelectionCollapsed &&
+                SuperEditorShareRegistry.shareCallback != null
             ? () {
                 final text = _extractSelectedText();
                 if (text.isNotEmpty) {
@@ -1286,7 +1363,7 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
                 }
               }
             : null;
-        
+
         return AndroidTextEditingFloatingToolbar(
           floatingToolbarKey: floatingToolbarKey,
           focalPoint: focalPoint,
@@ -1302,14 +1379,17 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
       },
     );
   }
-  
+
   String _extractSelectedText() {
     final selection = editorOps.composer.selection;
     if (selection == null || selection.isCollapsed) return '';
-    
+
     final document = editorOps.document;
-    final selectedNodes = document.getNodesInside(selection.base, selection.extent);
-    
+    final selectedNodes = document.getNodesInside(
+      selection.base,
+      selection.extent,
+    );
+
     final buffer = StringBuffer();
     for (int i = 0; i < selectedNodes.length; i++) {
       final node = selectedNodes[i];
@@ -1317,18 +1397,19 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
         final text = node.text.toPlainText();
         final basePosition = selection.base;
         final extentPosition = selection.extent;
-        
-        if (basePosition.nodeId == node.id && extentPosition.nodeId == node.id) {
+
+        if (basePosition.nodeId == node.id &&
+            extentPosition.nodeId == node.id) {
           final baseOffset = basePosition.nodePosition is TextNodePosition
               ? (basePosition.nodePosition as TextNodePosition).offset
               : 0;
           final extentOffset = extentPosition.nodePosition is TextNodePosition
               ? (extentPosition.nodePosition as TextNodePosition).offset
               : text.length;
-          
+
           final start = baseOffset < extentOffset ? baseOffset : extentOffset;
           final end = baseOffset < extentOffset ? extentOffset : baseOffset;
-          
+
           if (start >= 0 && end <= text.length) {
             buffer.write(text.substring(start, end));
           }
@@ -1345,13 +1426,13 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
         } else {
           buffer.write(text);
         }
-        
+
         if (i < selectedNodes.length - 1) {
           buffer.write('\n');
         }
       }
     }
-    
+
     return buffer.toString();
   }
 
@@ -1374,17 +1455,17 @@ class DefaultAndroidEditorToolbar extends StatelessWidget {
     editorOps.selectAll();
     editorControlsController.hideToolbar();
   }
-  
+
   void _delete() {
     editorOps.deleteSelection(TextAffinity.downstream);
     editorControlsController.hideToolbar();
   }
-  
+
   void _selectWord() {
     // Basic word selection - can be enhanced
     final selection = editorOps.composer.selection;
     if (selection == null || !selection.isCollapsed) return;
-    
+
     // For now, just select all - can be enhanced with word boundary detection
     editorOps.selectAll();
     editorControlsController.hideToolbar();
@@ -1412,7 +1493,10 @@ class _SelectionLeadersDocumentLayerBuilder implements SuperEditorLayerBuilder {
   final bool showDebugLeaderBounds;
 
   @override
-  ContentLayerWidget build(BuildContext context, SuperEditorContext editContext) {
+  ContentLayerWidget build(
+    BuildContext context,
+    SuperEditorContext editContext,
+  ) {
     return SelectionLeadersDocumentLayer(
       document: editContext.document,
       selection: editContext.composer.selectionNotifier,
@@ -1581,10 +1665,14 @@ class SuperEditorSelectionPolicies {
       identical(this, other) ||
       other is SuperEditorSelectionPolicies &&
           runtimeType == other.runtimeType &&
-          placeCaretAtEndOfDocumentOnGainFocus == other.placeCaretAtEndOfDocumentOnGainFocus &&
-          restorePreviousSelectionOnGainFocus == other.restorePreviousSelectionOnGainFocus &&
-          clearSelectionWhenEditorLosesFocus == other.clearSelectionWhenEditorLosesFocus &&
-          clearSelectionWhenImeConnectionCloses == other.clearSelectionWhenImeConnectionCloses;
+          placeCaretAtEndOfDocumentOnGainFocus ==
+              other.placeCaretAtEndOfDocumentOnGainFocus &&
+          restorePreviousSelectionOnGainFocus ==
+              other.restorePreviousSelectionOnGainFocus &&
+          clearSelectionWhenEditorLosesFocus ==
+              other.clearSelectionWhenEditorLosesFocus &&
+          clearSelectionWhenImeConnectionCloses ==
+              other.clearSelectionWhenImeConnectionCloses;
 
   @override
   int get hashCode =>
@@ -1597,7 +1685,10 @@ class SuperEditorSelectionPolicies {
 /// Builds widgets that are displayed at the same position and size as
 /// the document layout within a [SuperEditor].
 abstract class SuperEditorLayerBuilder {
-  ContentLayerWidget build(BuildContext context, SuperEditorContext editContext);
+  ContentLayerWidget build(
+    BuildContext context,
+    SuperEditorContext editContext,
+  );
 }
 
 /// A [SuperEditorLayerBuilder] that's implemented with a given function, so
@@ -1605,20 +1696,24 @@ abstract class SuperEditorLayerBuilder {
 class FunctionalSuperEditorLayerBuilder implements SuperEditorLayerBuilder {
   const FunctionalSuperEditorLayerBuilder(this._delegate);
 
-  final ContentLayerWidget Function(BuildContext context, SuperEditorContext editContext) _delegate;
+  final ContentLayerWidget Function(
+    BuildContext context,
+    SuperEditorContext editContext,
+  ) _delegate;
 
   @override
-  ContentLayerWidget build(BuildContext context, SuperEditorContext editContext) => _delegate(context, editContext);
+  ContentLayerWidget build(
+    BuildContext context,
+    SuperEditorContext editContext,
+  ) =>
+      _delegate(context, editContext);
 }
 
 /// A [SuperEditorLayerBuilder] that paints a caret at the primary selection extent
 /// in a [SuperEditor].
 class DefaultCaretOverlayBuilder implements SuperEditorLayerBuilder {
   const DefaultCaretOverlayBuilder({
-    this.caretStyle = const CaretStyle(
-      width: 2,
-      color: Colors.black,
-    ),
+    this.caretStyle = const CaretStyle(width: 2, color: Colors.black),
     this.platformOverride,
     this.displayOnAllPlatforms = false,
     this.displayCaretWithExpandedSelection = true,
@@ -1647,7 +1742,10 @@ class DefaultCaretOverlayBuilder implements SuperEditorLayerBuilder {
   final BlinkTimingMode blinkTimingMode;
 
   @override
-  ContentLayerWidget build(BuildContext context, SuperEditorContext editContext) {
+  ContentLayerWidget build(
+    BuildContext context,
+    SuperEditorContext editContext,
+  ) {
     return CaretDocumentOverlay(
       composer: editContext.composer,
       documentLayoutResolver: () => editContext.documentLayout,
@@ -1836,13 +1934,20 @@ const defaultEditorSelectorHandlers = <String, SuperEditorSelectorHandler>{
   MacOsSelectors.moveUpAndModifySelection: moveUpAndModifySelection,
   MacOsSelectors.moveDownAndModifySelection: moveDownAndModifySelection,
   MacOsSelectors.moveWordLeftAndModifySelection: moveWordLeftAndModifySelection,
-  MacOsSelectors.moveWordRightAndModifySelection: moveWordRightAndModifySelection,
-  MacOsSelectors.moveToLeftEndOfLineAndModifySelection: moveToLeftEndOfLineAndModifySelection,
-  MacOsSelectors.moveToRightEndOfLineAndModifySelection: moveToRightEndOfLineAndModifySelection,
-  MacOsSelectors.moveParagraphBackwardAndModifySelection: moveParagraphBackwardAndModifySelection,
-  MacOsSelectors.moveParagraphForwardAndModifySelection: moveParagraphForwardAndModifySelection,
-  MacOsSelectors.moveToBeginningOfDocumentAndModifySelection: moveToBeginningOfDocumentAndModifySelection,
-  MacOsSelectors.moveToEndOfDocumentAndModifySelection: moveToEndOfDocumentAndModifySelection,
+  MacOsSelectors.moveWordRightAndModifySelection:
+      moveWordRightAndModifySelection,
+  MacOsSelectors.moveToLeftEndOfLineAndModifySelection:
+      moveToLeftEndOfLineAndModifySelection,
+  MacOsSelectors.moveToRightEndOfLineAndModifySelection:
+      moveToRightEndOfLineAndModifySelection,
+  MacOsSelectors.moveParagraphBackwardAndModifySelection:
+      moveParagraphBackwardAndModifySelection,
+  MacOsSelectors.moveParagraphForwardAndModifySelection:
+      moveParagraphForwardAndModifySelection,
+  MacOsSelectors.moveToBeginningOfDocumentAndModifySelection:
+      moveToBeginningOfDocumentAndModifySelection,
+  MacOsSelectors.moveToEndOfDocumentAndModifySelection:
+      moveToEndOfDocumentAndModifySelection,
 
   // Insertion.
   MacOsSelectors.insertTab: indentListItem,
@@ -1868,131 +1973,99 @@ const defaultEditorSelectorHandlers = <String, SuperEditorSelectorHandler>{
 /// Stylesheet applied to all [SuperEditor]s by default.
 final defaultStylesheet = Stylesheet(
   rules: [
-    StyleRule(
-      BlockSelector.all,
-      (doc, docNode) {
-        return {
-          Styles.maxWidth: 640.0,
-          Styles.padding: const CascadingPadding.symmetric(horizontal: 24),
-          Styles.textStyle: const TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            height: 1.4,
-          ),
-        };
-      },
-    ),
-    StyleRule(
-      const BlockSelector("header1"),
-      (doc, docNode) {
-        return {
-          Styles.padding: const CascadingPadding.only(top: 40),
-          Styles.textStyle: const TextStyle(
-            color: Color(0xFF333333),
-            fontSize: 38,
-            fontWeight: FontWeight.bold,
-          ),
-        };
-      },
-    ),
-    StyleRule(
-      const BlockSelector("header2"),
-      (doc, docNode) {
-        return {
-          Styles.padding: const CascadingPadding.only(top: 32),
-          Styles.textStyle: const TextStyle(
-            color: Color(0xFF333333),
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
-          ),
-        };
-      },
-    ),
-    StyleRule(
-      const BlockSelector("header3"),
-      (doc, docNode) {
-        return {
-          Styles.padding: const CascadingPadding.only(top: 28),
-          Styles.textStyle: const TextStyle(
-            color: Color(0xFF333333),
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        };
-      },
-    ),
-    StyleRule(
-      const BlockSelector("paragraph"),
-      (doc, docNode) {
-        return {
-          Styles.padding: const CascadingPadding.only(top: 24),
-        };
-      },
-    ),
-    StyleRule(
-      const BlockSelector("paragraph").after("header1"),
-      (doc, docNode) {
-        return {
-          Styles.padding: const CascadingPadding.only(top: 0),
-        };
-      },
-    ),
-    StyleRule(
-      const BlockSelector("paragraph").after("header2"),
-      (doc, docNode) {
-        return {
-          Styles.padding: const CascadingPadding.only(top: 0),
-        };
-      },
-    ),
-    StyleRule(
-      const BlockSelector("paragraph").after("header3"),
-      (doc, docNode) {
-        return {
-          Styles.padding: const CascadingPadding.only(top: 0),
-        };
-      },
-    ),
-    StyleRule(
-      const BlockSelector("listItem"),
-      (doc, docNode) {
-        return {
-          Styles.padding: const CascadingPadding.only(top: 24),
-        };
-      },
-    ),
-    StyleRule(
-      const BlockSelector("blockquote"),
-      (doc, docNode) {
-        return {
-          Styles.textStyle: const TextStyle(
-            color: Colors.grey,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            height: 1.4,
-          ),
-        };
-      },
-    ),
-    StyleRule(
-      BlockSelector.all.last(),
-      (doc, docNode) {
-        return {
-          Styles.padding: const CascadingPadding.only(bottom: 96),
-        };
-      },
-    ),
+    StyleRule(BlockSelector.all, (doc, docNode) {
+      return {
+        Styles.maxWidth: 640.0,
+        Styles.padding: const CascadingPadding.symmetric(horizontal: 24),
+        Styles.textStyle: const TextStyle(
+          color: Colors.black,
+          fontSize: 18,
+          height: 1.4,
+        ),
+      };
+    }),
+    StyleRule(const BlockSelector("header1"), (doc, docNode) {
+      return {
+        Styles.padding: const CascadingPadding.only(top: 24, bottom: 16),
+        Styles.textStyle: const TextStyle(
+          color: Color(0xFF333333),
+          fontSize: 38,
+          fontWeight: FontWeight.bold,
+        ),
+      };
+    }),
+    StyleRule(const BlockSelector("header2"), (doc, docNode) {
+      return {
+        Styles.padding: const CascadingPadding.only(top: 24, bottom: 16),
+        Styles.textStyle: const TextStyle(
+          color: Color(0xFF333333),
+          fontSize: 26,
+          fontWeight: FontWeight.bold,
+        ),
+      };
+    }),
+    StyleRule(const BlockSelector("header3"), (doc, docNode) {
+      return {
+        Styles.padding: const CascadingPadding.only(top: 24),
+        Styles.textStyle: const TextStyle(
+          color: Color(0xFF333333),
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+        ),
+      };
+    }),
+    StyleRule(const BlockSelector("paragraph"), (doc, docNode) {
+      return {Styles.padding: const CascadingPadding.only(top: 24)};
+    }),
+    StyleRule(const BlockSelector("paragraph").after("header1"), (
+      doc,
+      docNode,
+    ) {
+      return {Styles.padding: const CascadingPadding.only(top: 0)};
+    }),
+    StyleRule(const BlockSelector("paragraph").after("header2"), (
+      doc,
+      docNode,
+    ) {
+      return {Styles.padding: const CascadingPadding.only(top: 0)};
+    }),
+    StyleRule(const BlockSelector("paragraph").after("header3"), (
+      doc,
+      docNode,
+    ) {
+      return {Styles.padding: const CascadingPadding.only(top: 0)};
+    }),
+    StyleRule(const BlockSelector("listItem"), (doc, docNode) {
+      return {Styles.padding: const CascadingPadding.only(top: 24)};
+    }),
+    StyleRule(const BlockSelector("blockquote"), (doc, docNode) {
+      return {
+        Styles.textStyle: const TextStyle(
+          color: Colors.grey,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          height: 1.4,
+        ),
+      };
+    }),
+    StyleRule(BlockSelector.all.last(), (doc, docNode) {
+      return {Styles.padding: const CascadingPadding.only(bottom: 96)};
+    }),
   ],
   inlineTextStyler: defaultInlineTextStyler,
   inlineWidgetBuilders: defaultInlineWidgetBuilderChain,
 );
 
-TextStyle defaultInlineTextStyler(Set<Attribution> attributions, TextStyle existingStyle) {
+TextStyle defaultInlineTextStyler(
+  Set<Attribution> attributions,
+  TextStyle existingStyle,
+) {
   var newStyle = existingStyle.merge(defaultStyleBuilder(attributions));
 
   // We apply opacity here instead of defaultStyleBuilder because opacity requires
   // a color to be defined to apply itself.
-  final opacityAttribution = attributions.whereType<OpacityAttribution>().firstOrNull;
+  final opacityAttribution =
+      attributions.whereType<OpacityAttribution>().firstOrNull;
   if (opacityAttribution != null) {
     newStyle = newStyle.copyWith(
       color: newStyle.color!.withValues(alpha: opacityAttribution.opacity),
@@ -2008,24 +2081,26 @@ TextStyle defaultStyleBuilder(Set<Attribution> attributions) {
 
   for (final attribution in attributions) {
     if (attribution == boldAttribution) {
-      newStyle = newStyle.copyWith(
-        fontWeight: FontWeight.bold,
-      );
+      newStyle = newStyle.copyWith(fontWeight: FontWeight.bold);
     } else if (attribution == italicsAttribution) {
-      newStyle = newStyle.copyWith(
-        fontStyle: FontStyle.italic,
-      );
+      newStyle = newStyle.copyWith(fontStyle: FontStyle.italic);
     } else if (attribution == underlineAttribution) {
       newStyle = newStyle.copyWith(
         decoration: newStyle.decoration == null
             ? TextDecoration.underline
-            : TextDecoration.combine([TextDecoration.underline, newStyle.decoration!]),
+            : TextDecoration.combine([
+                TextDecoration.underline,
+                newStyle.decoration!,
+              ]),
       );
     } else if (attribution == strikethroughAttribution) {
       newStyle = newStyle.copyWith(
         decoration: newStyle.decoration == null
             ? TextDecoration.lineThrough
-            : TextDecoration.combine([TextDecoration.lineThrough, newStyle.decoration!]),
+            : TextDecoration.combine([
+                TextDecoration.lineThrough,
+                newStyle.decoration!,
+              ]),
       );
     } else if (attribution == superscriptAttribution) {
       newStyle = newStyle.copyWith(
@@ -2036,21 +2111,13 @@ TextStyle defaultStyleBuilder(Set<Attribution> attributions) {
         fontFeatures: [const FontFeature.subscripts()],
       );
     } else if (attribution is ColorAttribution) {
-      newStyle = newStyle.copyWith(
-        color: attribution.color,
-      );
+      newStyle = newStyle.copyWith(color: attribution.color);
     } else if (attribution is BackgroundColorAttribution) {
-      newStyle = newStyle.copyWith(
-        backgroundColor: attribution.color,
-      );
+      newStyle = newStyle.copyWith(backgroundColor: attribution.color);
     } else if (attribution is FontSizeAttribution) {
-      newStyle = newStyle.copyWith(
-        fontSize: attribution.fontSize,
-      );
+      newStyle = newStyle.copyWith(fontSize: attribution.fontSize);
     } else if (attribution is FontFamilyAttribution) {
-      newStyle = newStyle.copyWith(
-        fontFamily: attribution.fontFamily,
-      );
+      newStyle = newStyle.copyWith(fontFamily: attribution.fontFamily);
     } else if (attribution is LinkAttribution) {
       newStyle = newStyle.copyWith(
         color: Colors.lightBlue,

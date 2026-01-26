@@ -72,6 +72,4 @@ dev_dependencies:
   flutter_test_goldens: ^0.0.7
   golden_bricks: ^1.0.0
   golden_runner: ^0.2.0
-
-flutter:
   # no Flutter configuration

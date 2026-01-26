@@ -537,28 +537,22 @@ class _AndroidEditingOverlayControlsState extends State<AndroidEditingOverlayCon
     Offset toolbarTopAnchor;
     Offset toolbarBottomAnchor;
 
-    if (widget.editingController.textController.selection.isCollapsed) {
-      final extentOffsetInViewport =
-          _textPositionToViewportOffset(widget.editingController.textController.selection.extent);
-      final lineHeight = _textLayout.getLineHeightAtPosition(widget.editingController.textController.selection.extent);
+    // Use the same anchor point calculation for both collapsed and non-collapsed selections
+    // to ensure consistent toolbar positioning across all menu types (paste, selection, link).
+    // Always use the position that represents where the cursor would be at the start of the text.
+    // For collapsed: extent is the cursor position (always use this)
+    // For non-collapsed: use the position with the minimum offset (start of selection, regardless of direction)
+    // This ensures we always anchor to the same visual position (top of line at the start point)
+    final selection = widget.editingController.textController.selection;
+    final anchorPosition = selection.isCollapsed
+        ? selection.extent
+        : (selection.base.offset <= selection.extent.offset ? selection.base : selection.extent);
+    final anchorOffsetInViewport = _textPositionToViewportOffset(anchorPosition);
+    final lineHeight = _textLayout.getLineHeightAtPosition(anchorPosition);
 
-      toolbarTopAnchor = extentOffsetInViewport - const Offset(0, gapBetweenToolbarAndContent);
-      toolbarBottomAnchor =
-          extentOffsetInViewport + Offset(0, lineHeight) + const Offset(0, gapBetweenToolbarAndContent);
-    } else {
-      final selectionBoxes = _textLayout.getBoxesForSelection(widget.editingController.textController.selection);
-      Rect selectionBounds = selectionBoxes.first.toRect();
-      for (int i = 1; i < selectionBoxes.length; ++i) {
-        selectionBounds = selectionBounds.expandToInclude(selectionBoxes[i].toRect());
-      }
-      final selectionTopInText = selectionBounds.topCenter;
-      final selectionTopInViewport = _textOffsetToViewportOffset(selectionTopInText);
-      toolbarTopAnchor = selectionTopInViewport - const Offset(0, gapBetweenToolbarAndContent);
-
-      final selectionBottomInText = selectionBounds.bottomCenter;
-      final selectionBottomInViewport = _textOffsetToViewportOffset(selectionBottomInText);
-      toolbarBottomAnchor = selectionBottomInViewport + const Offset(0, gapBetweenToolbarAndContent);
-    }
+    toolbarTopAnchor = anchorOffsetInViewport - const Offset(0, gapBetweenToolbarAndContent);
+    toolbarBottomAnchor =
+        anchorOffsetInViewport + Offset(0, lineHeight) + const Offset(0, gapBetweenToolbarAndContent);
 
     // The selection might start above the visible area in a scrollable
     // text field. In that case, we don't want the toolbar to sit more
