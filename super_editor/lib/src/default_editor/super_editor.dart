@@ -1989,7 +1989,7 @@ final defaultStylesheet = Stylesheet(
         Styles.padding: const CascadingPadding.only(top: 24, bottom: 16),
         Styles.textStyle: const TextStyle(
           color: Color(0xFF333333),
-          fontSize: 38,
+          fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
       };
@@ -1999,7 +1999,7 @@ final defaultStylesheet = Stylesheet(
         Styles.padding: const CascadingPadding.only(top: 24, bottom: 16),
         Styles.textStyle: const TextStyle(
           color: Color(0xFF333333),
-          fontSize: 26,
+          fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
       };
@@ -2009,7 +2009,7 @@ final defaultStylesheet = Stylesheet(
         Styles.padding: const CascadingPadding.only(top: 24),
         Styles.textStyle: const TextStyle(
           color: Color(0xFF333333),
-          fontSize: 22,
+          fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
       };
