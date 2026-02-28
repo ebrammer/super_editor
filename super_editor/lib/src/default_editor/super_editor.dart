@@ -1975,7 +1975,7 @@ final defaultStylesheet = Stylesheet(
   rules: [
     StyleRule(BlockSelector.all, (doc, docNode) {
       return {
-        Styles.maxWidth: 640.0,
+        Styles.maxWidth: double.infinity,
         Styles.padding: const CascadingPadding.symmetric(horizontal: 24),
         Styles.textStyle: const TextStyle(
           color: Colors.black,
