@@ -69,7 +69,6 @@ class _IosFloatingToolbarOverlayState extends State<IosFloatingToolbarOverlay> w
     return ListenableBuilder(
       listenable: widget.shouldShowToolbar,
       builder: (context, _) {
-        print('FORK: IosFloatingToolbarOverlay rebuilding - shouldShowToolbar: ${widget.shouldShowToolbar.value}');
         return Padding(
           // Remove the keyboard from the space that we occupy so that
           // clipping calculations apply to the expected visual borders,
@@ -89,10 +88,7 @@ class _IosFloatingToolbarOverlayState extends State<IosFloatingToolbarOverlay> w
                   // Build the editing toolbar
                   if (widget.shouldShowToolbar.value) ...[
                     Builder(
-                      builder: (context) {
-                        print('FORK: Building toolbar - shouldShowToolbar is true');
-                        return _buildToolbar();
-                      },
+                      builder: (context) => _buildToolbar(),
                     ),
                   ],
                   if (widget.showDebugPaint) //
@@ -107,7 +103,6 @@ class _IosFloatingToolbarOverlayState extends State<IosFloatingToolbarOverlay> w
   }
 
   Widget _buildToolbar() {
-    print('FORK: _buildToolbar() called - calling floatingToolbarBuilder');
     return FollowerFadeOutBeyondBoundary(
       link: widget.toolbarFocalPoint,
       boundary: WidgetFollowerBoundary(

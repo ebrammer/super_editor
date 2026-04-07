@@ -744,8 +744,6 @@ class _IosDocumentTouchInteractorState extends State<IosDocumentTouchInteractor>
           WidgetsBinding.instance.addPostFrameCallback((_) {
             final newSelection = widget.selection.value;
             if (newSelection != null && newSelection.isCollapsed) {
-              print(
-                  'FORK: Tap created collapsed selection - showing toolbar for paste menu');
               _controlsController!.showToolbar();
             }
           });
@@ -856,14 +854,11 @@ class _IosDocumentTouchInteractorState extends State<IosDocumentTouchInteractor>
       _controlsController!.hideToolbar();
     } else if (!newSelection.isCollapsed) {
       // Non-collapsed selection - always show toolbar
-      print('FORK: Expanded selection - calling showToolbar()');
       _controlsController!.showToolbar();
     } else {
       // Collapsed selection - show toolbar so paste menu can appear
       // The toolbar builder will return empty if paste menu shouldn't show
-      print('FORK: Collapsed selection - calling showToolbar() for paste menu');
       _controlsController!.showToolbar();
-      print('FORK: showToolbar() completed for collapsed selection');
     }
 
     widget.focusNode.requestFocus();
@@ -1653,19 +1648,15 @@ class SuperEditorIosToolbarOverlayManagerState
         toolbarFocalPoint: _controlsController!.toolbarFocalPoint,
         floatingToolbarBuilder: _controlsController!.toolbarBuilder != null
             ? (context, key, focalPoint) {
-                print('FORK: Using controller toolbarBuilder');
                 return _controlsController!.toolbarBuilder!(
                     context, key, focalPoint);
               }
             : widget.defaultToolbarBuilder != null
                 ? (context, key, focalPoint) {
-                    print(
-                        'FORK: Using defaultToolbarBuilder (should not happen if controllers set correctly)');
                     return widget.defaultToolbarBuilder!(
                         context, key, focalPoint);
                   }
                 : (_, __, ___) {
-                    print('FORK: No toolbar builder - returning empty');
                     return const SizedBox();
                   },
         createOverlayControlsClipper:

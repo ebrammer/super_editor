@@ -513,10 +513,6 @@ class SuperEditorState extends State<SuperEditor> {
     _iosControlsController = SuperEditorIosControlsController(
       toolbarBuilder: widget.iOSToolbarBuilder != null
           ? (context, key, focalPoint) {
-              final selection = widget.editor.composer.selection;
-              print(
-                'FORK: Calling deprecated iOSToolbarBuilder - selection: $selection, isCollapsed: ${selection?.isCollapsed}',
-              );
               return widget.iOSToolbarBuilder!(context);
             }
           : null,
@@ -524,7 +520,6 @@ class SuperEditorState extends State<SuperEditor> {
     _androidControlsController = SuperEditorAndroidControlsController(
       toolbarBuilder: widget.androidToolbarBuilder != null
           ? (context, key, focalPoint) {
-              print('FORK: Calling deprecated androidToolbarBuilder');
               return widget.androidToolbarBuilder!(context);
             }
           : null,
@@ -957,15 +952,9 @@ class SuperEditorState extends State<SuperEditor> {
           tapRegionGroupId: widget.tapRegionGroupId,
           defaultToolbarBuilder: widget.iOSToolbarBuilder != null
               ? (overlayContext, mobileToolbarKey, focalPoint) {
-                  print(
-                    'FORK: defaultToolbarBuilder called with deprecated builder',
-                  );
                   return widget.iOSToolbarBuilder!(overlayContext);
                 }
               : (overlayContext, mobileToolbarKey, focalPoint) {
-                  print(
-                    'FORK: defaultToolbarBuilder called - no deprecated builder, returning empty',
-                  );
                   return const SizedBox
                       .shrink(); // Disabled - apps must provide custom toolbar
                 },
