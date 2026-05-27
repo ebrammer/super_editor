@@ -21,6 +21,7 @@ import 'package:super_text_layout/super_text_layout.dart';
 
 import 'attributions.dart';
 import 'layout_single_column/layout_single_column.dart';
+import 'list_items.dart';
 
 /// This file includes everything needed to add the concept of a task
 /// to Super Editor. This includes:
@@ -220,7 +221,7 @@ class TaskComponentViewModel extends SingleColumnLayoutComponentViewModel
     required super.padding,
     super.opacity = 1.0,
     this.indent = 0,
-    this.indentCalculator = defaultTaskIndentCalculator,
+    this.indentCalculator = defaultListItemIndentCalculator,
     required this.isComplete,
     required this.setComplete,
     required this.text,
@@ -389,27 +390,19 @@ class _TaskComponentState extends State<TaskComponent>
               textStyle,
               widget.viewModel.indent,
             ),
-          ),
-          // Checkbox aligned with text line height
-          Padding(
-            padding: const EdgeInsets.only(left: 0, right: 0, top: 2),
-            child: SizedBox(
-              height: lineHeight,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Checkbox(
-                  visualDensity: Theme.of(context).visualDensity,
-                  value: widget.viewModel.isComplete,
-                  onChanged: widget.viewModel.setComplete != null
-                      ? (newValue) {
-                          widget.viewModel.setComplete!(newValue!);
-                        }
-                      : null,
-                ),
+            height: lineHeight,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _TaskCheckControl(
+                isComplete: widget.viewModel.isComplete,
+                onChanged: widget.viewModel.setComplete,
+                checkedColor: Theme.of(context).colorScheme.primary,
+                uncheckedColor:
+                    textStyle.color ?? Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
-          // Text component - wrapped lines will align with the start of this component
+          // Text component - wrapped lines align with the start of this component.
           Expanded(
             child: TextComponent(
               key: _textKey,
@@ -426,6 +419,55 @@ class _TaskComponentState extends State<TaskComponent>
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _TaskCheckControl extends StatelessWidget {
+  const _TaskCheckControl({
+    required this.isComplete,
+    required this.onChanged,
+    required this.checkedColor,
+    required this.uncheckedColor,
+  });
+
+  final bool isComplete;
+  final void Function(bool)? onChanged;
+  final Color checkedColor;
+  final Color uncheckedColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = Icon(
+      isComplete ? Icons.check_circle : Icons.radio_button_unchecked,
+      key: ValueKey(isComplete),
+      size: 20,
+      color: isComplete ? checkedColor : uncheckedColor,
+    );
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onChanged == null ? null : () => onChanged!(!isComplete),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 5),
+        child: SizedBox.square(
+          dimension: 20,
+          child: Center(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 120),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(
+                  scale: Tween<double>(begin: 0.9, end: 1).animate(animation),
+                  child: FadeTransition(opacity: animation, child: child),
+                );
+              },
+              child: icon,
+            ),
+          ),
+        ),
       ),
     );
   }

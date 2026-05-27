@@ -2009,24 +2009,6 @@ final defaultStylesheet = Stylesheet(
     StyleRule(const BlockSelector("paragraph"), (doc, docNode) {
       return {Styles.padding: const CascadingPadding.only(top: 24)};
     }),
-    StyleRule(const BlockSelector("paragraph").after("header1"), (
-      doc,
-      docNode,
-    ) {
-      return {Styles.padding: const CascadingPadding.only(top: 8)};
-    }),
-    StyleRule(const BlockSelector("paragraph").after("header2"), (
-      doc,
-      docNode,
-    ) {
-      return {Styles.padding: const CascadingPadding.only(top: 8)};
-    }),
-    StyleRule(const BlockSelector("paragraph").after("header3"), (
-      doc,
-      docNode,
-    ) {
-      return {Styles.padding: const CascadingPadding.only(top: 8)};
-    }),
     StyleRule(const BlockSelector("header2").after("header1"), (
       doc,
       docNode,
@@ -2046,20 +2028,32 @@ final defaultStylesheet = Stylesheet(
       return {Styles.padding: const CascadingPadding.only(top: 4)};
     }),
     StyleRule(const BlockSelector("listItem"), (doc, docNode) {
-      return {Styles.padding: const CascadingPadding.only(top: 24)};
+      final styles = <String, dynamic>{
+        Styles.padding: const CascadingPadding.only(top: 24),
+      };
+
+      if (docNode is ListItemNode && docNode.type == ListItemType.ordered) {
+        styles[Styles.listNumeralStyle] = switch (docNode.indent) {
+          0 => OrderedListNumeralStyle.arabic,
+          1 => OrderedListNumeralStyle.upperAlpha,
+          2 => OrderedListNumeralStyle.lowerRoman,
+          _ => OrderedListNumeralStyle.lowerAlpha,
+        };
+      }
+
+      return styles;
     }),
     StyleRule(const BlockSelector("blockquote"), (doc, docNode) {
       return {
         Styles.padding: const CascadingPadding.only(
-          left: 24.0,
-          top: 12.0,
-          bottom: 0.0,
+          top: 24.0,
+          bottom: 16.0,
         ),
         Styles.textStyle: const TextStyle(
           color: Colors.grey,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          height: 1.4,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          height: 1.5,
         ),
       };
     }),
@@ -2067,40 +2061,40 @@ final defaultStylesheet = Stylesheet(
       doc,
       docNode,
     ) {
-      return {Styles.padding: const CascadingPadding.only(top: 0)};
+      return {Styles.padding: const CascadingPadding.only(top: 20)};
     }),
     StyleRule(const BlockSelector("listItem").after("blockquote"), (
       doc,
       docNode,
     ) {
-      return {Styles.padding: const CascadingPadding.only(top: 0)};
+      return {Styles.padding: const CascadingPadding.only(top: 20)};
     }),
     StyleRule(const BlockSelector("task").after("blockquote"), (
       doc,
       docNode,
     ) {
-      return {Styles.padding: const CascadingPadding.only(top: 0)};
+      return {Styles.padding: const CascadingPadding.only(top: 20)};
     }),
     StyleRule(const BlockSelector("header1").after("blockquote"), (
       doc,
       docNode,
     ) {
-      return {Styles.padding: const CascadingPadding.only(top: 0)};
+      return {Styles.padding: const CascadingPadding.only(top: 24)};
     }),
     StyleRule(const BlockSelector("header2").after("blockquote"), (
       doc,
       docNode,
     ) {
-      return {Styles.padding: const CascadingPadding.only(top: 0)};
+      return {Styles.padding: const CascadingPadding.only(top: 20)};
     }),
     StyleRule(const BlockSelector("header3").after("blockquote"), (
       doc,
       docNode,
     ) {
-      return {Styles.padding: const CascadingPadding.only(top: 0)};
+      return {Styles.padding: const CascadingPadding.only(top: 16)};
     }),
     StyleRule(const BlockSelector("task"), (doc, docNode) {
-      return {Styles.padding: const CascadingPadding.only(top: 12)};
+      return {Styles.padding: const CascadingPadding.only(top: 24)};
     }),
     StyleRule(const BlockSelector("task").after("task"), (doc, docNode) {
       return {Styles.padding: const CascadingPadding.only(top: 12)};
@@ -2115,6 +2109,20 @@ final defaultStylesheet = Stylesheet(
         (doc, docNode) {
       return {Styles.padding: const CascadingPadding.only(top: 12)};
     }),
+    for (final blockType in [
+      "paragraph",
+      "listItem",
+      "task",
+      "blockquote",
+    ])
+      for (final headingType in [
+        "header1",
+        "header2",
+        "header3",
+      ])
+        StyleRule(BlockSelector(blockType).after(headingType), (doc, docNode) {
+          return {Styles.padding: const CascadingPadding.only(top: 4)};
+        }),
     StyleRule(BlockSelector.all.last(), (doc, docNode) {
       return {Styles.padding: const CascadingPadding.only(bottom: 96)};
     }),

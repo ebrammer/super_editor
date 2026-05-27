@@ -20,7 +20,8 @@ class BlockquoteComponentBuilder implements ComponentBuilder {
   const BlockquoteComponentBuilder();
 
   @override
-  SingleColumnLayoutComponentViewModel? createViewModel(Document document, DocumentNode node) {
+  SingleColumnLayoutComponentViewModel? createViewModel(
+      Document document, DocumentNode node) {
     if (node is! ParagraphNode) {
       return null;
     }
@@ -30,7 +31,8 @@ class BlockquoteComponentBuilder implements ComponentBuilder {
 
     final textDirection = getParagraphDirection(node.text.toPlainText());
 
-    TextAlign textAlign = (textDirection == TextDirection.ltr) ? TextAlign.left : TextAlign.right;
+    TextAlign textAlign =
+        (textDirection == TextDirection.ltr) ? TextAlign.left : TextAlign.right;
     final textAlignName = node.getMetadataValue('textAlign');
     switch (textAlignName) {
       case 'left':
@@ -62,8 +64,8 @@ class BlockquoteComponentBuilder implements ComponentBuilder {
   }
 
   @override
-  Widget? createComponent(
-      SingleColumnDocumentComponentContext componentContext, SingleColumnLayoutComponentViewModel componentViewModel) {
+  Widget? createComponent(SingleColumnDocumentComponentContext componentContext,
+      SingleColumnLayoutComponentViewModel componentViewModel) {
     if (componentViewModel is! BlockquoteComponentViewModel) {
       return null;
     }
@@ -72,6 +74,8 @@ class BlockquoteComponentBuilder implements ComponentBuilder {
       textKey: componentContext.componentKey,
       text: componentViewModel.text,
       styleBuilder: componentViewModel.textStyleBuilder,
+      textDirection: componentViewModel.textDirection,
+      textAlignment: componentViewModel.textAlignment,
       indent: componentViewModel.indent,
       indentCalculator: componentViewModel.indentCalculator,
       backgroundColor: componentViewModel.backgroundColor,
@@ -84,7 +88,8 @@ class BlockquoteComponentBuilder implements ComponentBuilder {
   }
 }
 
-class BlockquoteComponentViewModel extends SingleColumnLayoutComponentViewModel with TextComponentViewModel {
+class BlockquoteComponentViewModel extends SingleColumnLayoutComponentViewModel
+    with TextComponentViewModel {
   BlockquoteComponentViewModel({
     required super.nodeId,
     super.createdAt,
@@ -105,9 +110,11 @@ class BlockquoteComponentViewModel extends SingleColumnLayoutComponentViewModel 
     this.highlightWhenEmpty = false,
     TextRange? composingRegion,
     bool showComposingRegionUnderline = false,
-    UnderlineStyle spellingErrorUnderlineStyle = const SquiggleUnderlineStyle(color: Color(0xFFFF0000)),
+    UnderlineStyle spellingErrorUnderlineStyle =
+        const SquiggleUnderlineStyle(color: Color(0xFFFF0000)),
     List<TextRange> spellingErrors = const <TextRange>[],
-    UnderlineStyle grammarErrorUnderlineStyle = const SquiggleUnderlineStyle(color: Colors.blue),
+    UnderlineStyle grammarErrorUnderlineStyle =
+        const SquiggleUnderlineStyle(color: Colors.blue),
     List<TextRange> grammarErrors = const <TextRange>[],
   }) {
     this.composingRegion = composingRegion;
@@ -168,7 +175,8 @@ class BlockquoteComponentViewModel extends SingleColumnLayoutComponentViewModel 
   }
 
   @override
-  BlockquoteComponentViewModel internalCopy(BlockquoteComponentViewModel viewModel) {
+  BlockquoteComponentViewModel internalCopy(
+      BlockquoteComponentViewModel viewModel) {
     final copy = super.internalCopy(viewModel) as BlockquoteComponentViewModel;
 
     copy
@@ -193,7 +201,11 @@ class BlockquoteComponentViewModel extends SingleColumnLayoutComponentViewModel 
 
   @override
   int get hashCode =>
-      super.hashCode ^ textViewModelHashCode ^ indent.hashCode ^ backgroundColor.hashCode ^ borderRadius.hashCode;
+      super.hashCode ^
+      textViewModelHashCode ^
+      indent.hashCode ^
+      backgroundColor.hashCode ^
+      borderRadius.hashCode;
 }
 
 /// Displays a blockquote in a document.
@@ -204,6 +216,8 @@ class BlockquoteComponent extends StatelessWidget {
     required this.text,
     required this.styleBuilder,
     this.inlineWidgetBuilders = const [],
+    this.textDirection = TextDirection.ltr,
+    this.textAlignment = TextAlign.left,
     this.textSelection,
     this.indent = 0,
     this.indentCalculator = defaultParagraphIndentCalculator,
@@ -219,6 +233,8 @@ class BlockquoteComponent extends StatelessWidget {
   final AttributedText text;
   final AttributionStyleBuilder styleBuilder;
   final InlineWidgetBuilderChain inlineWidgetBuilders;
+  final TextDirection textDirection;
+  final TextAlign textAlignment;
   final TextSelection? textSelection;
   final int indent;
   final TextBlockIndentCalculator indentCalculator;
@@ -231,29 +247,39 @@ class BlockquoteComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          color: backgroundColor,
-        ),
+    final quoteIndent = 12.0 +
+        indentCalculator(
+          styleBuilder({}),
+          indent,
+        );
+
+    return Directionality(
+      textDirection: textDirection,
+      child: IntrinsicHeight(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Indent spacing on left.
-            SizedBox(
-              width: indentCalculator(
-                styleBuilder({}),
-                indent,
+            SizedBox(width: quoteIndent),
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: Colors.grey,
+                    width: 3.0,
+                  ),
+                ),
               ),
             ),
-            // The actual paragraph UI.
+            const SizedBox(width: 14.0),
             Expanded(
               child: TextComponent(
                 key: textKey,
                 text: text,
+                textDirection: textDirection,
+                textAlign: textAlignment,
                 textStyleBuilder: styleBuilder,
                 inlineWidgetBuilders: inlineWidgetBuilders,
+                metadata: const {'blockType': blockquoteAttribution},
                 textSelection: textSelection,
                 selectionColor: selectionColor,
                 highlightWhenEmpty: highlightWhenEmpty,
